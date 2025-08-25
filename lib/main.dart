@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           'login': (BuildContext context) => Loginpage(),
           'registro': (BuildContext context) => Registrepage(),
           'home': (BuildContext context) => HomeScreen(),
-          'evidencia-mec': (BuildContext context) => EvidenciaMecanicaScreen(),
+          'evidencia-meca': (BuildContext context) => EvidenciaMecanicaScreen(),
         },
       ),
     );
