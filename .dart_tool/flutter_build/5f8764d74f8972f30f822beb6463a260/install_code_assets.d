@@ -1,0 +1,1 @@
+ /home/mauerr/Desktop/Proyectos/Nexxus-Tecnicos/.dart_tool/flutter_build/5f8764d74f8972f30f822beb6463a260/native_assets.json: 
