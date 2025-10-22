@@ -38,7 +38,6 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 30),
-
                   // Unidad label
                   const Text(
                     "Unidad #",
