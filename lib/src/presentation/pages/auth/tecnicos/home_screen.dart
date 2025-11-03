@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciamecanica.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,19 +19,15 @@ class HomeScreen extends StatelessWidget {
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover,
-              color: Color.fromRGBO(0, 0, 0, 0.7),
+              color: const Color.fromRGBO(0, 0, 0, 0.7),
               colorBlendMode: BlendMode.darken,
             ),
             Container(
               width: double.infinity,
-              //color: const Color(0xFF2A00FF),
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //const SizedBox(height: 30),
-
-                  // Título
                   const Text(
                     "Bienvenido Julanito",
                     style: TextStyle(
@@ -36,17 +36,12 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 30),
-                  // Unidad label
                   const Text(
                     "Unidad #",
                     style: TextStyle(fontSize: 24, color: Colors.white),
                   ),
-
                   const SizedBox(height: 10),
-
-                  // Caja de texto
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -61,36 +56,44 @@ class HomeScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
-
                   const SizedBox(height: 60),
 
-                  // Botones
+                  // Botones con navegación
                   Center(
                     child: Column(
                       children: [
-                        Container(
-                          child: customButton(context, "Evidencias Mecánicas")
-                          
-                          ),
+                        customButton(
+                          context,
+                          "Evidencias Mecánicas",
+                          const EvidenciaMecanicaScreen(),
+                        ),
                         const SizedBox(height: 20),
-                        customButton(context, "Evidencias Kilometraje"),
+                        customButton(
+                          context,
+                          "Evidencias Kilometraje",
+                          const EvidenciaKilometrajeScreen(),
+                        ),
                         const SizedBox(height: 20),
-                        customButton(context, "Evidencias Hojalateria"),
+                        customButton(
+                          context,
+                          "Evidencias Hojalatería",
+                          const EvidenciaHojalateriaScreen(),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Botón salir (icono en la esquina superior derecha)
             Positioned(
               top: 16,
               right: 16,
               child: IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
                 tooltip: 'Cerrar sesión',
-                onPressed: () {},
+                onPressed: () {
+                   Navigator.pop(context);
+                },
               ),
             ),
           ],
@@ -99,12 +102,17 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Botón personalizado con navegación
-  Widget customButton(BuildContext context, String text) {
+  // 🔹 Botón personalizado con navegación dinámica
+  Widget customButton(BuildContext context, String text, Widget destination) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => destination),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFD9D9D9),
           shape: RoundedRectangleBorder(
