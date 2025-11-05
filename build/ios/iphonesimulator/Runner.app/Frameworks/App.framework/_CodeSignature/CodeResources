@@ -10,11 +10,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		i7zzGLg7K/PxbFfUFdKmcy/sHKs=
+		BgCvEVdkOQYjnDldvkTCc4586Dg=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		zHMptC8XQPB1Iw4HSCIRb1+XbEg=
+		X7XGA0M0Ln0lFevGuxjVUS4ubTY=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -450,7 +450,23 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		DydCxCU70F+wYbSWDuo85rAeaJ8=
+		jHUCHRv4q4HxH9S5+7JQWyjlw8c=
+		</data>
+		<key>flutter_assets/lib/assets/cam.png</key>
+		<data>
+		qA0YMNvArMFVBDn3l69eJnG2xog=
+		</data>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro1.jpg</key>
+		<data>
+		dRKYPE9t2PG64ztarLTYAnXvhjc=
+		</data>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro2.jpg</key>
+		<data>
+		HH8Lvu0tWAQsdV+sfmnldB3B7+4=
+		</data>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro3.jpg</key>
+		<data>
+		sR3Ab81zllxHMY1HGo5Mm9dQReU=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -479,14 +495,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			NtfjD4hD4hchyukAElb0pcn8/m44phmpO7/eBkOYW5o=
+			oxJcX7uEOjNriKgvST/Nxy1YWzbLK5ozW1uzma52jvM=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			cjdsWGK0DvZnyD12nhd7Lhr4b+ZVueq0/45kuZl9q98=
+			XkuqLIeXm87maOB/1xm/OTbLO8qVa+2zxUc29a8BCQk=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -1249,7 +1265,35 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			fWeNHo4U8p0C16e+porj3riaK0VUMwQ8OymVv5CaKvc=
+			zaBbhtwKZpNmutBEOd0aOKdIcTwHPZLrICMgvO7hQNU=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/cam.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			PEp0DZsei0r1HmdCaGZ9btJisDNtLk/nUJSKSXyu2RY=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro1.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			F6MMyMgPp8YtF+eEL3OLzr6tcuU0UeasOj7xh4RRSgI=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro2.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Nq5Ek69rhptOSpv7DWnpfPDdfObKpFrVNxie5nlF0o0=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/evidenciamecanica/carro3.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			0I57tWDDnZV50mWytX5Hf4xMz7X7V+npg+eqspq/DH4=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
