@@ -63,7 +63,19 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           _buildMainButton(context, "KM fin del día"),
                           const SizedBox(height: 20),
-                          
+                          _buildMainButton(context, "Asientos delanteros"),
+                          const SizedBox(height: 20),
+                          _buildMainButton(context, "Asientos traseros"),
+                          const SizedBox(height: 40),
+
+                          // 🔹 Botón “Validar”
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: _buildValidateButton(context),
+                            ),
+                          ),
                         ],
                       ),
                     ),
