@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/camScreen.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructiva.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructivader.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructivaizq.dart';
 
 
 class EvidenciaHojalateriaScreen extends StatelessWidget {
@@ -11,7 +14,7 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Fondo principal
+            // Fondo
             Image.asset(
               'assets/img/background13.jpg',
               height: MediaQuery.of(context).size.height,
@@ -21,7 +24,7 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
               colorBlendMode: BlendMode.darken,
             ),
 
-            // Contenido principal
+            // Contenido
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -29,7 +32,6 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 16),
 
-                  // Botón regresar
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
@@ -39,7 +41,6 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Título centrado
                   const Text(
                     "Evidencia de Hojalateria",
                     style: TextStyle(
@@ -52,13 +53,10 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
 
                   const SizedBox(height: 60),
 
-                  // Botones principales
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Botones de navegación
                           _buildMainButton(context, "Frente"),
                           const SizedBox(height: 20),
                           _buildMainButton(context, "Lateral Izquierdo"),
@@ -73,10 +71,9 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           _buildMainButton(context, "Reverso Angulo Izquierdo"),
                           const SizedBox(height: 20),
-                          _buildMainButton(context, "Reverso Angulo Derecho"),                        
+                          _buildMainButton(context, "Reverso Angulo Derecho"),
                           const SizedBox(height: 40),
-                      
-                          // 🔹 Botón “Validar”
+
                           Align(
                             alignment: Alignment.center,
                             child: SizedBox(
@@ -97,16 +94,32 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Botón principal que navega a la cámara
+  // 🔹 Botón principal con navegación condicional
   Widget _buildMainButton(BuildContext context, String text) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PantallaCamara()),
-          );
+          Widget screen;
+
+          switch (text) {
+            case "Frente":
+              screen = const ImagenInstructivaFrente();
+              break;
+            case "Lateral Izquierdo":
+              screen = const ImagenInstructivaIzquierdo();
+              break;
+            case "Lateral Derecho":
+              screen = const ImagenInstructivaDerecho();
+              break;
+            case "Reverso":
+              screen = const ImagenInstructivaFrente();
+              break;
+            default:
+              screen = const PantallaCamara();
+          }
+
+          Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFD9D9D9),
