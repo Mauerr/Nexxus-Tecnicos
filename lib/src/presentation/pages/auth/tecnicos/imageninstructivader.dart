@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';import 'package:nexxus/src/presentation/pages/auth/tecnicos/camScreen.dart';
+import 'package:flutter/material.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/camScreenHojalateria.dart';
-
 
 class ImagenInstructivaDerecho extends StatelessWidget {
   const ImagenInstructivaDerecho({super.key});
@@ -17,29 +16,40 @@ class ImagenInstructivaDerecho extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10), // 👈 Mantiene margen lateral
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+
+                const Text(
                   'Imagen instructiva',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              const Spacer(),
-              Center(
-                child: Image.asset(
-                  'lib/assets/imginstructivader.png', // Ruta local
-                  width: 300,
-                  height: 300,
-                  fit: BoxFit.contain,
+
+                const SizedBox(height: 10),
+
+                // 🔹 Imagen ocupando máximo espacio y centrada
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: FractionallySizedBox(
+                      widthFactor: 1.0, // 👈 Se expande a todo el ancho disponible
+                      child: Image.asset(
+                        'lib/assets/imginstructivader.png',
+                        fit: BoxFit.contain, // Mantiene proporción sin recorte
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              const Spacer(),
-            ],
+
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
         ),
       ),

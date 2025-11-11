@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nexxus/src/blocProviders.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/homeAdmin.dart';
 import 'package:nexxus/src/presentation/pages/auth/login/LoginPage.dart';
 import 'package:nexxus/src/presentation/pages/auth/register/RegistrePage.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidencia_mecanica.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
           'login': (BuildContext context) => Loginpage(),
           'registro': (BuildContext context) => Registrepage(),
           'home': (BuildContext context) => HomeScreen(),
+          'homeAdmin': (BuildContext context) => HomeAdmin(),
           'evidencia-meca': (BuildContext context) => EvidenciaMecanicaScreen(),
         },
       ),

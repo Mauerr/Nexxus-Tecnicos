@@ -10,11 +10,11 @@
 		</data>
 		<key>flutter_assets/AssetManifest.bin</key>
 		<data>
-		BgCvEVdkOQYjnDldvkTCc4586Dg=
+		ezWMRndj2uMrGcgsPXdJIQjaBd0=
 		</data>
 		<key>flutter_assets/AssetManifest.json</key>
 		<data>
-		X7XGA0M0Ln0lFevGuxjVUS4ubTY=
+		0vjxb4sfiVC3ssa1f8pJDxgvo10=
 		</data>
 		<key>flutter_assets/FontManifest.json</key>
 		<data>
@@ -450,7 +450,7 @@
 		</data>
 		<key>flutter_assets/kernel_blob.bin</key>
 		<data>
-		6f9KsldIVNlqL0OAdYDfKS/IP/Y=
+		zNKQgfvJzO6xqDta/d1LfwC3RwY=
 		</data>
 		<key>flutter_assets/lib/assets/cam.png</key>
 		<data>
@@ -467,6 +467,22 @@
 		<key>flutter_assets/lib/assets/evidenciamecanica/carro3.jpg</key>
 		<data>
 		sR3Ab81zllxHMY1HGo5Mm9dQReU=
+		</data>
+		<key>flutter_assets/lib/assets/imginstructiva.png</key>
+		<data>
+		HZM2FXHvk983uUnM0bzy9YuGI60=
+		</data>
+		<key>flutter_assets/lib/assets/imginstructivader.png</key>
+		<data>
+		iGrzmbbCvZy91csXk72mHXzQGAg=
+		</data>
+		<key>flutter_assets/lib/assets/imginstructivaizq.png</key>
+		<data>
+		W1kjhQjXuQzXp8HA0wcxsoJ5syQ=
+		</data>
+		<key>flutter_assets/lib/assets/reverso.png</key>
+		<data>
+		vpN9S7yPakbiWmOWnNZ/Rj1WWRQ=
 		</data>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
 		<data>
@@ -495,14 +511,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			oxJcX7uEOjNriKgvST/Nxy1YWzbLK5ozW1uzma52jvM=
+			aHrRlYuGgzxpJEac46W8/NtsV+vjqk5V1ptQVmsn1UY=
 			</data>
 		</dict>
 		<key>flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			XkuqLIeXm87maOB/1xm/OTbLO8qVa+2zxUc29a8BCQk=
+			T/6UK9lwe+W+0RbuECRQQSfFAjPsMwhkeIW3gnpoEFA=
 			</data>
 		</dict>
 		<key>flutter_assets/FontManifest.json</key>
@@ -1265,7 +1281,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Q8nFARku+QHvjdk0WCiwx5wo5UeOR5bEqt1T+3d4xh8=
+			/evIlcoPl9yzPM5CYpaUkPWXRr1D+rEN6aejx355Aew=
 			</data>
 		</dict>
 		<key>flutter_assets/lib/assets/cam.png</key>
@@ -1294,6 +1310,34 @@
 			<key>hash2</key>
 			<data>
 			0I57tWDDnZV50mWytX5Hf4xMz7X7V+npg+eqspq/DH4=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/imginstructiva.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			jLmHrG43n77XpK/eXgT3YWyTfTZwSz3qwCxnjLl9nLQ=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/imginstructivader.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			hgasxlYKzyHt4WxjuQCRAjAFosqqiPMG0kjfzEEeWUY=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/imginstructivaizq.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Daa8MrjmABKw67nw93+y3P42RZJbDkHKaR7z71Sr5c4=
+			</data>
+		</dict>
+		<key>flutter_assets/lib/assets/reverso.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZzHTtOyn7Y/ZBzM8vGOOMwMb6piSpQWCIrjjaRi+kEI=
 			</data>
 		</dict>
 		<key>flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf</key>
