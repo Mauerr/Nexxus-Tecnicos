@@ -1,4 +1,31 @@
+25-10
 
+
+--------------------------------------
+23-10
+
+se miro tema de puentes
+
+en general bien hoy
+
+
+--------------------------------------
+22-10
+
+- Se va entendiendo el uso de ips para comunicacion entre equipos
+- Mejor entendimiento de rutas
+- Entendimiento de src.address y dst-address en un paquete
+
+
+
+Puntos a Repasar:
+- que es una asignacion de segmento y una de ips
+- sigue fallando en recordar el uso de network y broadcast
+- falta mirar mas el uso de segmentos /25 /30 /12 etc. cuando y porque.
+- poner atencion en los estados de los items, para reconocer fallas.
+- sigue teniendo problemas con reconocer el gateway.
+
+---------------------------------------
 
 Ping hacia internet
 
@@ -18,3 +45,6 @@ Gateway
 
 Network y broadcast
 
+mauricio.roque@cablemaster.com.mx
+
+Cablemaster_25#
