@@ -134,6 +134,27 @@ class _LoginpageState extends State<Loginpage> {
                       },
                     ),
                   ),
+                  // 🔹 Nuevo botón "Iniciar como Administrador" (sin navegación de momento)
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(horizontal: 35, vertical: 5),
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                            
+                              Navigator.pushNamed(context, 'homeAdmin');
+                            
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                    ),
+                    child: const Text(
+                      'INICIAR COMO ADMINISTRADOR',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center, //Horizontal
                     children: [

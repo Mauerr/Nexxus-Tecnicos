@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/camScreen.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/home_screen.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructiva.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructivader.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructivaizq.dart';
-
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/imageninstructivareverso.dart';
 
 class EvidenciaHojalateriaScreen extends StatelessWidget {
   const EvidenciaHojalateriaScreen({super.key});
@@ -37,7 +38,14 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                     child: IconButton(
                       icon: const Icon(Icons.logout, color: Colors.white),
                       tooltip: 'Regresar',
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
@@ -64,14 +72,6 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                           _buildMainButton(context, "Lateral Derecho"),
                           const SizedBox(height: 20),
                           _buildMainButton(context, "Reverso"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Frente Angulo Izquierdo"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Frente Angulo Derecho"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Reverso Angulo Izquierdo"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Reverso Angulo Derecho"),
                           const SizedBox(height: 40),
 
                           Align(
@@ -113,7 +113,7 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
               screen = const ImagenInstructivaDerecho();
               break;
             case "Reverso":
-              screen = const ImagenInstructivaFrente();
+              screen = const ImagenInstructivaReverso();
               break;
             default:
               screen = const PantallaCamara();
@@ -146,9 +146,7 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFD9D9D9),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
       child: const Text(
