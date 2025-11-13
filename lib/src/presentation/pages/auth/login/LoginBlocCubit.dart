@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nexxus/src/data/dataSource/remote/service/AuthService.dart';
 import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocState.dart';
 import 'package:rxdart_flutter/rxdart_flutter.dart';
 
@@ -12,6 +13,8 @@ class LoginBlocCubit extends Cubit<LoginblocState> {
 
   Stream<String> get usuarioStream => _usuarioController.stream;
   Stream<String> get passwordStream => _passwordController.stream;
+
+  Authservice authservice = Authservice();
 
   //creacion de metodos para capturar valores get
   void changeUsuario(String usuario) {
@@ -48,5 +51,6 @@ class LoginBlocCubit extends Cubit<LoginblocState> {
   void login() {
     print('usuario: ${_usuarioController.value}');
     print('password: ${_passwordController.value}');
+    authservice.login(_usuarioController.value, _passwordController.value);
   }
 }
