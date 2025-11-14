@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciamecanica.dart';
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -22,132 +23,79 @@ class HomeAdmin extends StatelessWidget {
               colorBlendMode: BlendMode.darken,
             ),
 
-            // 🔹 Contenedor principal
+            // 🔹 Contenido principal
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-
-                    // 🔹 Botón salir
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(
-                        icon: const Icon(Icons.logout, color: Colors.white),
-                        tooltip: 'Cerrar sesión',
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Bienvenido Admin",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
+                  ),
+                  const SizedBox(height: 30),
+                  const SizedBox(height: 60),
 
-                    const SizedBox(height: 10),
-
-                    // 🔹 Título
-                    const Center(
-                      child: Text(
-                        "Evidencias ##/##/####",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // 🔹 Campos de unidad y fecha
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  // 🔹 Botones principales
+                  Center(
+                    child: Column(
                       children: [
-                        // Unidad
-                        const Text(
-                          "Unidad No. #",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white70,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                        customButton(
+                          context,
+                          "Revisión de Evidencias",
+                          const RevisionEvidenciaAdmin(),
                         ),
                         const SizedBox(height: 20),
-
-                        // Fecha
-                        const Text(
-                          "Fecha",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        customButton(
+                          context,
+                          "Validación de Vehículos",
+                          const EvidenciaKilometrajeScreen(),
                         ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white70,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                        const SizedBox(height: 20),
+                        customButton(
+                          context,
+                          "Mantenimiento",
+                          const EvidenciaHojalateriaScreen(),
+                        ),
+                        const SizedBox(height: 20),
+                        customButton(
+                          context,
+                          "Aprovisionamiento de Vehículos",
+                          const EvidenciaHojalateriaScreen(),
+                        ),
+                        const SizedBox(height: 20),
+                        customButton(
+                          context,
+                          "Asignación de Rutas",
+                          const EvidenciaHojalateriaScreen(),
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+            ),
 
-                    const SizedBox(height: 30),
-
-                    // 🔹 Usuario asignado
-                    const Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Usuario Asignado",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            "*Usuario*",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // 🔹 Botones principales
-                    Center(
-                      child: Column(
-                        children: [
-                          customButton(
-                            context,
-                            "Evidencias Mecánicas",
-                            const EvidenciaMecanicaScreen(),
-                          ),
-                          const SizedBox(height: 20),
-                          customButton(
-                            context,
-                            "Evidencias Hojalatería",
-                            const EvidenciaHojalateriaScreen(),
-                          ),
-                          const SizedBox(height: 20),
-                          customButton(
-                            context,
-                            "Evidencias Kilometraje",
-                            const EvidenciaKilometrajeScreen(),
-                          ),
-                          const SizedBox(height: 30),
-                          // 🔹 Botón salir
-                          customButtonSalir(context),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+            // 🔹 Icono de salida (Logout)
+            Positioned(
+              top: 16,
+              right: 16,
+              child: IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white),
+                tooltip: 'Cerrar sesión',
+                onPressed: () {
+                  // Redirigir a la pantalla de Login
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Loginpage()),
+                    (Route<dynamic> route) => false, // Limpia el stack
+                  );
+                },
               ),
             ),
           ],
@@ -177,29 +125,6 @@ class HomeAdmin extends StatelessWidget {
         child: Text(
           text,
           style: const TextStyle(fontSize: 20, color: Colors.black),
-        ),
-      ),
-    );
-  }
-
-  // 🔹 Botón "Salir"
-  Widget customButtonSalir(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.6,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFD9D9D9),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 15),
-        ),
-        child: const Text(
-          "Salir",
-          style: TextStyle(fontSize: 18, color: Colors.black),
         ),
       ),
     );
