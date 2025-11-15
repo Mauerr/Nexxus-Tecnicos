@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
 import 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
 import 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
+
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -54,7 +55,7 @@ class HomeAdmin extends StatelessWidget {
                         customButton(
                           context,
                           "Validación de Vehículos",
-                          const EvidenciaKilometrajeScreen(),
+                          const OpcionesCarroAdmin(),
                         ),
                         const SizedBox(height: 20),
                         customButton(
