@@ -1,0 +1,33 @@
+com.example.nexxus.app-jetified-profileinstaller-1.4.0-0 /Users/nldweb/.gradle/caches/8.12/transforms/1289f1bb5f8e3b879c6c89494d0cdccf/transformed/jetified-profileinstaller-1.4.0/res
+com.example.nexxus.app-jetified-savedstate-1.2.1-1 /Users/nldweb/.gradle/caches/8.12/transforms/13f40eec596e8ce2c801c4be2eb950cb/transformed/jetified-savedstate-1.2.1/res
+com.example.nexxus.app-fragment-1.7.1-2 /Users/nldweb/.gradle/caches/8.12/transforms/1f7c45a8e427e4987ac1396475eb6a1d/transformed/fragment-1.7.1/res
+com.example.nexxus.app-lifecycle-livedata-2.7.0-3 /Users/nldweb/.gradle/caches/8.12/transforms/2d710b77d107757aab7d375f93fed76b/transformed/lifecycle-livedata-2.7.0/res
+com.example.nexxus.app-jetified-core-ktx-1.13.1-4 /Users/nldweb/.gradle/caches/8.12/transforms/3d00d93013c5b3d6a29286ac43703b6f/transformed/jetified-core-ktx-1.13.1/res
+com.example.nexxus.app-lifecycle-viewmodel-2.7.0-5 /Users/nldweb/.gradle/caches/8.12/transforms/460ff6f5f2f14ba7313062f3b146ad9a/transformed/lifecycle-viewmodel-2.7.0/res
+com.example.nexxus.app-jetified-lifecycle-process-2.7.0-6 /Users/nldweb/.gradle/caches/8.12/transforms/504636b425b8b1fd059c74ba5a65a107/transformed/jetified-lifecycle-process-2.7.0/res
+com.example.nexxus.app-jetified-activity-1.10.1-7 /Users/nldweb/.gradle/caches/8.12/transforms/67bfe11d426e1f03f95e3770e50a1110/transformed/jetified-activity-1.10.1/res
+com.example.nexxus.app-jetified-window-java-1.2.0-8 /Users/nldweb/.gradle/caches/8.12/transforms/735f025cd27cb5a1f16c56a967044f36/transformed/jetified-window-java-1.2.0/res
+com.example.nexxus.app-core-runtime-2.2.0-9 /Users/nldweb/.gradle/caches/8.12/transforms/75eb96fda8175141e4090296e08d8010/transformed/core-runtime-2.2.0/res
+com.example.nexxus.app-lifecycle-livedata-core-2.7.0-10 /Users/nldweb/.gradle/caches/8.12/transforms/77d2eb5a06e962b2d80298b522f5efbd/transformed/lifecycle-livedata-core-2.7.0/res
+com.example.nexxus.app-jetified-core-viewtree-1.0.0-11 /Users/nldweb/.gradle/caches/8.12/transforms/7a6bc77f65ac8919e20c9dff88ff2150/transformed/jetified-core-viewtree-1.0.0/res
+com.example.nexxus.app-lifecycle-runtime-2.7.0-12 /Users/nldweb/.gradle/caches/8.12/transforms/9bd37af326a5d3792ee401084997029c/transformed/lifecycle-runtime-2.7.0/res
+com.example.nexxus.app-exifinterface-1.4.1-13 /Users/nldweb/.gradle/caches/8.12/transforms/af3c32cbb7b6fbcab5332def3b37008d/transformed/exifinterface-1.4.1/res
+com.example.nexxus.app-core-1.13.1-14 /Users/nldweb/.gradle/caches/8.12/transforms/b3c10aea4b341c1c62738dbd370d2da4/transformed/core-1.13.1/res
+com.example.nexxus.app-jetified-tracing-1.2.0-15 /Users/nldweb/.gradle/caches/8.12/transforms/b60d150c0f7a7f9017cab2ff48b203d4/transformed/jetified-tracing-1.2.0/res
+com.example.nexxus.app-jetified-core-1.0.0-16 /Users/nldweb/.gradle/caches/8.12/transforms/ba57bc17da587030b028d093110612d8/transformed/jetified-core-1.0.0/res
+com.example.nexxus.app-jetified-annotation-experimental-1.4.0-17 /Users/nldweb/.gradle/caches/8.12/transforms/d66d5e13c5c9fba74da4203216ab6792/transformed/jetified-annotation-experimental-1.4.0/res
+com.example.nexxus.app-jetified-startup-runtime-1.1.1-18 /Users/nldweb/.gradle/caches/8.12/transforms/e163ef5a2b9bb49c526baaac1ecedea4/transformed/jetified-startup-runtime-1.1.1/res
+com.example.nexxus.app-jetified-lifecycle-livedata-core-ktx-2.7.0-19 /Users/nldweb/.gradle/caches/8.12/transforms/e8abcb9996240786a446f81123d161c1/transformed/jetified-lifecycle-livedata-core-ktx-2.7.0/res
+com.example.nexxus.app-jetified-window-1.2.0-20 /Users/nldweb/.gradle/caches/8.12/transforms/ea185b7f540868a01efad6c11552e316/transformed/jetified-window-1.2.0/res
+com.example.nexxus.app-jetified-lifecycle-viewmodel-savedstate-2.7.0-21 /Users/nldweb/.gradle/caches/8.12/transforms/fef461bd591dc594ae61038b1b3ad8ee/transformed/jetified-lifecycle-viewmodel-savedstate-2.7.0/res
+com.example.nexxus.app-debug-22 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/android/app/src/debug/res
+com.example.nexxus.app-main-23 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/android/app/src/main/res
+com.example.nexxus.app-pngs-24 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/app/generated/res/pngs/debug
+com.example.nexxus.app-resValues-25 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/app/generated/res/resValues/debug
+com.example.nexxus.app-packageDebugResources-26 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/app/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.example.nexxus.app-packageDebugResources-27 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/app/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.example.nexxus.app-debug-28 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/app/intermediates/merged_res/debug/mergeDebugResources
+com.example.nexxus.app-debug-29 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/file_picker/intermediates/packaged_res/debug/packageDebugResources
+com.example.nexxus.app-debug-30 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/flutter_plugin_android_lifecycle/intermediates/packaged_res/debug/packageDebugResources
+com.example.nexxus.app-debug-31 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/fluttertoast/intermediates/packaged_res/debug/packageDebugResources
+com.example.nexxus.app-debug-32 /Users/nldweb/Desktop/curso flutter/nexxusclon/Nexxus-Tecnicos/build/image_picker_android/intermediates/packaged_res/debug/packageDebugResources

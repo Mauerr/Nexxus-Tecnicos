@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';
 import 'package:nexxus/src/presentation/pages/auth/administrador/homeadmin.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
 
 class ValidacionVehiculosAdmin extends StatefulWidget {
   const ValidacionVehiculosAdmin({super.key});
@@ -51,7 +54,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HomeAdmin(),
+                            builder: (context) => const OpcionesCarroAdmin(),
                           ),
                         );
                       },
@@ -91,13 +94,16 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
                   const SizedBox(height: 40),
 
                   // Botones principales
+                  // Botones principales
                   customButton(
                     context,
                     "Evidencia Fotográfica",
                     () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Abriendo evidencia fotográfica...")),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EvidenciafotograficaScreen(),
+                        ),
                       );
                     },
                   ),
@@ -107,12 +113,15 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
                     context,
                     "Documentación",
                     () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Abriendo documentación...")),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ArchivosVehiculoAdmin(),
+                        ),
                       );
                     },
                   ),
+
 
                   const SizedBox(height: 40),
 

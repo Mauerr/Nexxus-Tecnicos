@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/homeadmin.dart';
 import 'package:nexxus/src/presentation/pages/auth/administrador/validaciondevehiculosadmin.dart';
 
 
@@ -54,7 +56,7 @@ class OpcionesCarroAdmin extends StatelessWidget {
                   customButton(
                     context,
                     "Documentación",
-                    const Placeholder(), // Sustituye tu pantalla real
+                    const ArchivosVehiculoAdmin(), // Sustituye tu pantalla real
                   ),
 
                   const SizedBox(height: 40),
@@ -63,7 +65,13 @@ class OpcionesCarroAdmin extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: (){
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeAdmin(),
+                          ));
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFD9D9D9),
                         shape: RoundedRectangleBorder(
