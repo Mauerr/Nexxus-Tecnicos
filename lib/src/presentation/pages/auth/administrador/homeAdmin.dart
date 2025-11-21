@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
-import 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
+import 'barrilExportPath.dart';
+
 
 
 class HomeAdmin extends StatelessWidget {
@@ -61,19 +59,19 @@ class HomeAdmin extends StatelessWidget {
                         customButton(
                           context,
                           "Mantenimiento",
-                          const EvidenciaHojalateriaScreen(),
+                          const MantenimientoAdminScreen(),
                         ),
                         const SizedBox(height: 20),
                         customButton(
                           context,
                           "Aprovisionamiento de Vehículos",
-                          const EvidenciaHojalateriaScreen(),
+                          const AprovisionamientoAdmin(),
                         ),
                         const SizedBox(height: 20),
                         customButton(
                           context,
                           "Asignación de Rutas",
-                          const EvidenciaHojalateriaScreen(),
+                          const AsignacionRutasAdmin(),
                         ),
                       ],
                     ),

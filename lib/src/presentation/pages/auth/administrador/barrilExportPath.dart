@@ -1,0 +1,16 @@
+export 'package:nexxus/src/presentation/pages/auth/administrador/aprovicionamiento_cubit.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/homeAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimiento_cubir.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/aprovisionamientoAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimientoAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
+export 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutasAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutas_cubir.dart';
+export  'package:nexxus/src/presentation/pages/auth/administrador/validaciondevehiculosadmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciahojalateriaadmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciakilometricaadmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciasmecanicasadmin.dart';

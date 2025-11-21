@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/evidenciahojalateriaadmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/evidenciakilometricaadmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/evidenciasmecanicasadmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/homeadmin.dart';
+import 'barrilExportPath.dart';
 
 class RevisionEvidenciaAdmin extends StatelessWidget {
   const RevisionEvidenciaAdmin({super.key});

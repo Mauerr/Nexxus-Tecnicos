@@ -46,7 +46,7 @@
 		</data>
 		<key>Frameworks/App.framework/App</key>
 		<data>
-		UTi7Ypv8YbnkDJvfMRSgA+uIyxw=
+		mZos2VJ7Z7qFqn7mFlztO8VMKvU=
 		</data>
 		<key>Frameworks/App.framework/Info.plist</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Frameworks/App.framework/_CodeSignature/CodeResources</key>
 		<data>
-		xnBvT1Pk4lpdGu/LPf8l/m8GjPw=
+		16GKLCjoaW/eDSe7lCC0XNtEaKE=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.bin</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/NOTICES.Z</key>
 		<data>
-		o3rTcAR8jUSe4pmCTXyMv6nHYjc=
+		I0dR0kr9Le+qTzEh4pWTW5/tCm0=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/NativeAssetsManifest.json</key>
 		<data>
@@ -498,7 +498,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/kernel_blob.bin</key>
 		<data>
-		q6eeQfC46JFlSYN3PpSDRNLEYnk=
+		GKJx3Br/nM8E3Lukiq6b17HFAuU=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/lib/assets/cam.png</key>
 		<data>
@@ -975,6 +975,26 @@
 		<data>
 		/LX0ZlwxwIAIhjZaDB8EiH5KpXA=
 		</data>
+		<key>Frameworks/image_picker_ios.framework/Info.plist</key>
+		<data>
+		uvAl/MWyVy5ZPvRTYlpit7Qojzk=
+		</data>
+		<key>Frameworks/image_picker_ios.framework/_CodeSignature/CodeResources</key>
+		<data>
+		Os3K4pLYMPsIeYzdma7Go0va8Y0=
+		</data>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios</key>
+		<data>
+		ZXwBcZ5iznjF5TZm27V3G4I1E5c=
+		</data>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios_privacy.bundle/Info.plist</key>
+		<data>
+		JMrLCni/Pv/lleMur2EFLouSBgE=
+		</data>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios_privacy.bundle/PrivacyInfo.xcprivacy</key>
+		<data>
+		/LX0ZlwxwIAIhjZaDB8EiH5KpXA=
+		</data>
 		<key>Info.plist</key>
 		<data>
 		K28TiFM/lXQiHSHoxtRHK6ox4Sw=
@@ -985,7 +1005,7 @@
 		</data>
 		<key>Runner.debug.dylib</key>
 		<data>
-		Bm21L2cFZiwBsIEvBuDGTBoSC84=
+		2GE3eQiS6rNEzxFjNpR8Zf1YqY4=
 		</data>
 		<key>__preview.dylib</key>
 		<data>
@@ -1068,7 +1088,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			SurcEYz0DJToDdOQLtWlp8QNw8aixyc3wRFBk6clfmY=
+			ozzLXFh9/YxGn5QfJCuw8naQgn2AOO9qGjTSDZK4Dyw=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/Info.plist</key>
@@ -1082,7 +1102,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Ux6wrzFjR1i9f2/mnrUnoiVRf+bMsI4fKOwtLLxBtAQ=
+			/d2ZlQgXy37yf6u1tFhUAKiDdFslD7mlL3As+7OKNwU=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.bin</key>
@@ -1110,7 +1130,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			uPhq/URK5Pfh/S6WrZ57Id24EZZzpxcALUwuPawJlLk=
+			a1Y0BQVI5nxXd1JIFRFjvb8qaC0gPI6I7m/MSPDPpIc=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/NativeAssetsManifest.json</key>
@@ -1859,7 +1879,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			40q8vtVa+pLA1TSGVjg12yqL2Au+wH13fv5AuSw13Gg=
+			w7OcSh2WaHFsaJqHha75kzgey7yNwBuxuk4uzAOiDQE=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/lib/assets/cam.png</key>
@@ -2538,11 +2558,46 @@
 			bS2g2NkwIn1CjB2TY7CtbjoS4sm2jFzilxWKdBL8jDE=
 			</data>
 		</dict>
+		<key>Frameworks/image_picker_ios.framework/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			aIr1g6/ieMN8M37GAfT5PKPxvKJZ9MTR40Ump1k89HE=
+			</data>
+		</dict>
+		<key>Frameworks/image_picker_ios.framework/_CodeSignature/CodeResources</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			+YadyDc0b7oqkVgXL3T4PoXIlyT0auBnBA2wLzo1Tp4=
+			</data>
+		</dict>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			zx3/IISdACMhS6gCHBGyCRE4h435VK8tUUseceF8zN4=
+			</data>
+		</dict>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios_privacy.bundle/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			fUrt+fhLWJBBCEhPVq3EE5qq7akxKXka6mNtE0nGelM=
+			</data>
+		</dict>
+		<key>Frameworks/image_picker_ios.framework/image_picker_ios_privacy.bundle/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			bS2g2NkwIn1CjB2TY7CtbjoS4sm2jFzilxWKdBL8jDE=
+			</data>
+		</dict>
 		<key>Runner.debug.dylib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			XoF42ddLHKU647fx+6vac9rXxMTlc5brZvySRAaL6Fc=
+			SAFJM88whkeQAfLawItQ0XKP5a7fd2A1cVj7KWi3obY=
 			</data>
 		</dict>
 		<key>__preview.dylib</key>

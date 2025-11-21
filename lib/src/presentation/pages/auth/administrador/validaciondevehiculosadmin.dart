@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/homeadmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
-import 'package:nexxus/src/services/camara_service.dart';
+import 'barrilExportPath.dart';
 
 class ValidacionVehiculosAdmin extends StatefulWidget {
   const ValidacionVehiculosAdmin({super.key});
@@ -96,21 +92,18 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
 
                   // Botones principales
                   // Botones principales
-                  ElevatedButton(
-  onPressed: () async {
-    final foto = await CamaraService.tomarFoto();
-
-    if (foto != null) {
-      print("Foto tomada: ${foto.path}");
-      // Aquí puedes:
-      // - Guardar en BLoC
-      // - Subir al backend
-      // - Mostrar preview
-    }
-  },
-  child: const Text("Abrir cámara"),
-),
-
+                  customButton(
+                    context,
+                    "Evidencia Fotográfica",
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EvidenciafotograficaScreen(),
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 20),
 
                   customButton(

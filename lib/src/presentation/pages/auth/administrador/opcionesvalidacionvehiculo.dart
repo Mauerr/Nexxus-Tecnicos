@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/homeadmin.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/validaciondevehiculosadmin.dart';
+import 'barrilExportPath.dart';
 
 
 class OpcionesCarroAdmin extends StatelessWidget {

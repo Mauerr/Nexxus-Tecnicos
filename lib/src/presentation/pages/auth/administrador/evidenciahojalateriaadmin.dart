@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
+import 'barrilExportPath.dart';
 
 class EvidenciaHojalateriaAdmin extends StatefulWidget {
   const EvidenciaHojalateriaAdmin({super.key});
