@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/administrador/barrilExportPath.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciamecanica.dart';
@@ -92,7 +93,11 @@ class HomeScreen extends StatelessWidget {
                 icon: const Icon(Icons.logout, color: Colors.white),
                 tooltip: 'Cerrar sesión',
                 onPressed: () {
-                   Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Loginpage()),
+                    (Route<dynamic> route) => false, // Limpia el stack
+                  );
                 },
               ),
             ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocCubit.dart';
+import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocState.dart';
 import 'package:nexxus/src/presentation/pages/auth/widgets/DefaultTextfield.dart';
+import '../administrador/homeAdmin.dart';
+import '../tecnicos/home_screen.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -12,29 +16,47 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
-  LoginBlocCubit? _loginbloccubit;
+  late LoginBlocCubit _loginCubit;
 
-  //se Ejecuta una sola vez cuando carga la pantalla
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _loginbloccubit?.dispose();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    //inicializar _loginbloccubit para utilizar sus metodos
-    _loginbloccubit = BlocProvider.of<LoginBlocCubit>(context, listen: false);
+    // Obtener cubit
+    _loginCubit = BlocProvider.of<LoginBlocCubit>(context, listen: false);
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
+      body: BlocListener<LoginBlocCubit, LoginState>(
+        listener: (context, state) {
+          if (state is LoginLoadingState) {
+            Fluttertoast.showToast(msg: "Validando credenciales...");
+          }
+
+          if (state is LoginErrorState) {
+            Fluttertoast.showToast(msg: state.message);
+          }
+
+          if (state is LoginSuccessAdminState) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeAdmin()),
+            );
+          }
+
+          if (state is LoginSuccessTecnicoState) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
+        },
         child: Stack(
           alignment: Alignment.center,
           children: [
+            /// 🔹 Fondo
             Image.asset(
               'assets/img/background13.jpg',
               width: MediaQuery.of(context).size.width,
@@ -43,19 +65,20 @@ class _LoginpageState extends State<Loginpage> {
               color: Colors.black54,
               colorBlendMode: BlendMode.darken,
             ),
+
+            /// 🔹 Contenedor de login
             Container(
               width: MediaQuery.of(context).size.width * 0.85,
               height: MediaQuery.of(context).size.height * 0.70,
               decoration: BoxDecoration(
-                color: Color.fromRGBO(255, 255, 255, 0.322),
-                borderRadius: BorderRadius.all(Radius.circular(25)),
+                color: Colors.white.withOpacity(0.32),
+                borderRadius: BorderRadius.circular(25),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.person, color: Colors.white, size: 125),
-                  Text(
+                  const Icon(Icons.person, color: Colors.white, size: 125),
+                  const Text(
                     'LOGIN',
                     style: TextStyle(
                       color: Colors.white,
@@ -63,70 +86,59 @@ class _LoginpageState extends State<Loginpage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  // 🔹 Usuario
                   Container(
-                    margin: EdgeInsets.only(left: 25, right: 25),
-                    //
+                    margin: const EdgeInsets.symmetric(horizontal: 25),
                     child: StreamBuilder(
-                      stream: _loginbloccubit?.usuarioStream,
-                      builder: (context, asyncSnapshot) {
+                      stream: _loginCubit.usuarioStream,
+                      builder: (_, snapshot) {
                         return DefaultTextfield(
                           label: 'Usuario',
                           icon: Icons.email,
-                          errorText: asyncSnapshot.error?.toString(),
-                          onChange: (text) {
-                            //llamar _loginbloccubit
-                            _loginbloccubit?.changeUsuario(text);
-                          },
+                          errorText: snapshot.error?.toString(),
+                          onChange: _loginCubit.changeUsuario,
                         );
                       },
                     ),
                   ),
+
+                  // 🔹 Contraseña
                   Container(
-                    margin: EdgeInsets.only(left: 25, right: 25),
+                    margin: const EdgeInsets.symmetric(horizontal: 25),
                     child: StreamBuilder(
-                      stream: _loginbloccubit?.passwordStream,
-                      builder: (context, asyncSnapshot) {
+                      stream: _loginCubit.passwordStream,
+                      builder: (_, snapshot) {
                         return DefaultTextfield(
                           label: 'Contraseña',
                           icon: Icons.lock,
-                          errorText: asyncSnapshot.error?.toString(),
                           obscureText: true,
-                          onChange: (text) {
-                            _loginbloccubit?.changepassword(text);
-                          },
+                          errorText: snapshot.error?.toString(),
+                          onChange: _loginCubit.changepassword,
                         );
                       },
                     ),
                   ),
+
+                  // 🔹 Botón iniciar sesión
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                    margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
                     height: 50,
                     child: StreamBuilder(
-                      stream: _loginbloccubit?.validateForm,
-                      builder: (context, asyncSnapshot) {
+                      stream: _loginCubit.validateForm,
+                      builder: (_, snapshot) {
                         return ElevatedButton(
-                          onPressed: () {
-                            // IF validatorio de datos
-                            if (asyncSnapshot.hasData) {
-                              _loginbloccubit?.login();
-                              Navigator.pushNamed(context, 'home');
-                            } else {
-                              print('no valido');
-                              // muestra si los datos son incorrectos
-                              Fluttertoast.showToast(
-                                msg: 'El formulario no es valido',
-                                toastLength: Toast.LENGTH_LONG,
-                              );
-                            }
-                          },
+                          onPressed: snapshot.hasData
+                              ? () {
+                                  _loginCubit.login();
+                                }
+                              : null,
                           style: ElevatedButton.styleFrom(
-                            // cambio de color de boton
-                            backgroundColor: asyncSnapshot.hasData
-                                ? Colors.green
-                                : Colors.grey,
+                            backgroundColor:
+                                snapshot.hasData ? Colors.green : Colors.grey,
                           ),
-                          child: Text(
+                          child: const Text(
                             'INICIAR SESION',
                             style: TextStyle(color: Colors.black),
                           ),
@@ -134,60 +146,29 @@ class _LoginpageState extends State<Loginpage> {
                       },
                     ),
                   ),
-                  // 🔹 Nuevo botón "Iniciar como Administrador" (sin navegación de momento)
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 35, vertical: 5),
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                            
-                              Navigator.pushNamed(context, 'homeAdmin');
-                            
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                    ),
-                    child: const Text(
-                      'INICIAR COMO ADMINISTRADOR',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
+
+                  const SizedBox(height: 10),
 
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center, //Horizontal
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 1,
-                        color: Colors.white,
-                        margin: EdgeInsets.only(right: 5),
-                      ),
-                      Text(
-                        'No tienes cuenta?',
-                        style: TextStyle(color: Colors.white, fontSize: 17),
-                      ),
-                      Container(
-                        width: 80,
-                        height: 1,
-                        color: Colors.white,
-                        margin: EdgeInsets.only(left: 5),
-                      ),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text("No tienes cuenta?",
+                          style: TextStyle(color: Colors.white, fontSize: 16)),
                     ],
                   ),
+
+                  // Registrar
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                    margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, 'registro');
-                      },
+                      onPressed: () =>
+                          Navigator.pushNamed(context, 'registro'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                       ),
-                      child: Text(
+                      child: const Text(
                         'REGISTRATE',
                         style: TextStyle(color: Colors.black),
                       ),

@@ -1,52 +1,63 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocState.dart';
-import 'package:rxdart_flutter/rxdart_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
-class LoginBlocCubit extends Cubit<LoginblocState> {
-  LoginBlocCubit() : super(LoginInitial());
+import 'LoginBlocState.dart';
+import 'package:nexxus/src/services/auth_service.dart';
 
-  //Referenciar Atributos
-  // Creacion de variables para controlar los TextField
-  final _usuarioController = BehaviorSubject<String>();
-  final _passwordController = BehaviorSubject<String>();
+class LoginBlocCubit extends Cubit<LoginState> {
+  final AuthService authService;
+
+  LoginBlocCubit(this.authService) : super(LoginInitial());
+
+  final _usuarioController = StreamController<String>.broadcast();
+  final _passwordController = StreamController<String>.broadcast();
+
+  String _usuario = "";
+  String _password = "";
 
   Stream<String> get usuarioStream => _usuarioController.stream;
   Stream<String> get passwordStream => _passwordController.stream;
 
-  //creacion de metodos para capturar valores get
-  void changeUsuario(String usuario) {
-    if (usuario.isNotEmpty && usuario.length < 3) {
-      _usuarioController.sink.addError(
-        'Debe contener al menos 3 caracteres',
+  Stream<bool> get validateForm => Rx.combineLatest2(
+        usuarioStream,
+        passwordStream,
+        (a, b) => a.toString().isNotEmpty && b.toString().isNotEmpty,
       );
+
+  Function(String) get changeUsuario => (value) {
+        _usuario = value.trim();
+        _usuarioController.sink.add(_usuario);
+      };
+
+  Function(String) get changepassword => (value) {
+        _password = value.trim();
+        _passwordController.sink.add(_password);
+      };
+
+  Future<void> login() async {
+    emit(LoginLoadingState());
+
+    final result = await authService.login(_usuario, _password);
+
+    if (result == null) {
+      emit(LoginErrorState("Usuario o contraseña incorrectos"));
+      return;
+    }
+
+    final role = result["role"];
+
+    if (role == "admin") {
+      emit(LoginSuccessAdminState());
+    } else if (role == "tecnico") {
+      emit(LoginSuccessTecnicoState());
     } else {
-      _usuarioController.sink.add(usuario);
+      emit(LoginErrorState("Rol desconocido"));
     }
   }
-
-  void changepassword(String password) {
-    if (password.isNotEmpty && password.length < 6) {
-      _passwordController.sink.addError(
-        'La contraseña debe contener al menos 6 caracteres',
-      );
-    } else {
-      _passwordController.sink.add(password);
-    }
-  }
-
-  //crear validacion de combinacion de stream
-  Stream<bool> get validateForm =>
-      Rx.combineLatest2(usuarioStream, passwordStream, (a, b) => true);
 
   void dispose() {
-    // se Ejecuta Cuando se pase a otra pantalla
-    changeUsuario('');
-    changepassword('');
-  }
-
-  //metodo impresion de valores
-  void login() {
-    print('usuario: ${_usuarioController.value}');
-    print('password: ${_passwordController.value}');
+    _usuarioController.close();
+    _passwordController.close();
   }
 }
