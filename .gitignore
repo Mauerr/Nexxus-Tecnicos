@@ -2,3 +2,4 @@
 .flutter-plugins-dependencies
 build/
 .pub-cache/
+devtools_options.yaml
