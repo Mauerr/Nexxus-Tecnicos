@@ -1,1 +1,0 @@
- /Users/nldweb/Desktop/curso\ flutter/nexxusclon/Nexxus-Tecnicos/.dart_tool/flutter_build/c0d7bf9d2d7f8b1292079b117ffa40ae/native_assets.json: 
