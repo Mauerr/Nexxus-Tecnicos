@@ -3,7 +3,7 @@ import 'package:nexxus/src/presentation/pages/auth/administrador/barrilExportPat
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciamecanica.dart';
-
+import 'package:nexxus/src/services/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,7 +14,7 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Fondo principal y contenido
+            /// Fondo
             Image.asset(
               'assets/img/background13.jpg',
               height: MediaQuery.of(context).size.height,
@@ -23,6 +23,8 @@ class HomeScreen extends StatelessWidget {
               color: const Color.fromRGBO(0, 0, 0, 0.7),
               colorBlendMode: BlendMode.darken,
             ),
+
+            /// Contenido principal
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -37,12 +39,16 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
+
                   const SizedBox(height: 30),
+
                   const Text(
                     "Unidad #",
                     style: TextStyle(fontSize: 24, color: Colors.white),
                   ),
+
                   const SizedBox(height: 10),
+
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -57,9 +63,10 @@ class HomeScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
+
                   const SizedBox(height: 60),
 
-                  // Botones con navegación
+                  /// Botones
                   Center(
                     child: Column(
                       children: [
@@ -86,17 +93,23 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            /// 🔹 Botón de logout (corregido)
             Positioned(
               top: 16,
               right: 16,
               child: IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
                 tooltip: 'Cerrar sesión',
-                onPressed: () {
-                    Navigator.pushAndRemoveUntil(
+                onPressed: () async {
+                  await AuthService().clearSession();
+
+                  if (!context.mounted) return;
+
+                  Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const Loginpage()),
-                    (Route<dynamic> route) => false, // Limpia el stack
+                    MaterialPageRoute(builder: (_) => const Loginpage()),
+                    (route) => false,
                   );
                 },
               ),
@@ -107,7 +120,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Botón personalizado con navegación dinámica
+  /// Botón personalizado
   Widget customButton(BuildContext context, String text, Widget destination) {
     return SizedBox(
       width: double.infinity,
@@ -115,7 +128,7 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => destination),
+            MaterialPageRoute(builder: (_) => destination),
           );
         },
         style: ElevatedButton.styleFrom(

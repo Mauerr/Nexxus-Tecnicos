@@ -3,12 +3,13 @@ import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocCubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/register/RegistreBlocCubit.dart';
 import 'package:nexxus/src/services/auth_service.dart';
 
-final List<BlocProvider> blocProviders = [
-  BlocProvider<LoginBlocCubit>(
-    create: (context) => LoginBlocCubit(AuthService()),
-  ),
-
-  BlocProvider<Registrebloccubit>(
-    create: (context) => Registrebloccubit(),
-  ),
-];
+List<BlocProvider> blocProviders(AuthService authService) {
+  return [
+    BlocProvider<LoginBlocCubit>(
+      create: (context) => LoginBlocCubit(authService),
+    ),
+    BlocProvider<Registrebloccubit>(
+      create: (context) => Registrebloccubit(),
+    ),
+  ];
+}

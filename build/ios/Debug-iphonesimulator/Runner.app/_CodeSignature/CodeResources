@@ -46,7 +46,7 @@
 		</data>
 		<key>Frameworks/App.framework/App</key>
 		<data>
-		9JFuOe/PKxVojNKpaaMVGi/XBlg=
+		sagBMakXRjVnXTlIgemNDRfrO1I=
 		</data>
 		<key>Frameworks/App.framework/Info.plist</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Frameworks/App.framework/_CodeSignature/CodeResources</key>
 		<data>
-		eGjzZk0sCD1/JZPi1nSnSFKmMPk=
+		y1EAjhm+/a4O37JfwdoUeX4rTeA=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.bin</key>
 		<data>
@@ -70,7 +70,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/NOTICES.Z</key>
 		<data>
-		I0dR0kr9Le+qTzEh4pWTW5/tCm0=
+		OGxb5Zoq/pKUIjyBIw4PZeTptQ4=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/NativeAssetsManifest.json</key>
 		<data>
@@ -498,7 +498,7 @@
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/kernel_blob.bin</key>
 		<data>
-		OGqwYX65Syzr34VAVFyvwF7DIYo=
+		zr3nEmisHxudnRZhuIsjpprQQ70=
 		</data>
 		<key>Frameworks/App.framework/flutter_assets/lib/assets/cam.png</key>
 		<data>
@@ -995,6 +995,26 @@
 		<data>
 		/LX0ZlwxwIAIhjZaDB8EiH5KpXA=
 		</data>
+		<key>Frameworks/shared_preferences_foundation.framework/Info.plist</key>
+		<data>
+		WrmRgRn1b9eSE/USNJRc3X0WZ8o=
+		</data>
+		<key>Frameworks/shared_preferences_foundation.framework/_CodeSignature/CodeResources</key>
+		<data>
+		j9ZdqwsEzmKa/Qq1NUuVsPOEhnM=
+		</data>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation</key>
+		<data>
+		WWpyMjgYKLcRd+edMivLJBrqFGw=
+		</data>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation_privacy.bundle/Info.plist</key>
+		<data>
+		B+b1d1sjTwdqGDIZ+ZwQLIRiUmU=
+		</data>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation_privacy.bundle/PrivacyInfo.xcprivacy</key>
+		<data>
+		6uLTlq7fgHHWA8emYDf4ImHC+AY=
+		</data>
 		<key>Info.plist</key>
 		<data>
 		K28TiFM/lXQiHSHoxtRHK6ox4Sw=
@@ -1005,7 +1025,7 @@
 		</data>
 		<key>Runner.debug.dylib</key>
 		<data>
-		2GE3eQiS6rNEzxFjNpR8Zf1YqY4=
+		Xhooeuu3oxmPwEddyLuwVy/Cw1Y=
 		</data>
 		<key>__preview.dylib</key>
 		<data>
@@ -1088,7 +1108,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			C4E2fRfRuMhXQ5yn316T0fvD05WGseJY1XDbgbQ8tnk=
+			7sgEGA8ZJVguHjzrT6kjYMewT96MhpcbQqJQcEPuZf4=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/Info.plist</key>
@@ -1102,7 +1122,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			v0JeDYPcO5WdFUoC3eMC2flzMl9Eq8LbP0lnohrbn20=
+			7kI6lluE0XFHEL+hc0mDc9rHExOrd7WR2annzhUKvMQ=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/AssetManifest.bin</key>
@@ -1130,7 +1150,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			a1Y0BQVI5nxXd1JIFRFjvb8qaC0gPI6I7m/MSPDPpIc=
+			Y4K24IB/Sj32wNoVGYILJnw2RZR9cbg8LhYCsUFqHGc=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/NativeAssetsManifest.json</key>
@@ -1879,7 +1899,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			uH4qE+H01Iv5sh5I24A+xYq0Za61x7TLKpdtGavl2IA=
+			yDdWPFnwRVpm5g5VJSDCjAGLhKFK3e775M1JpNKopmk=
 			</data>
 		</dict>
 		<key>Frameworks/App.framework/flutter_assets/lib/assets/cam.png</key>
@@ -2593,11 +2613,46 @@
 			bS2g2NkwIn1CjB2TY7CtbjoS4sm2jFzilxWKdBL8jDE=
 			</data>
 		</dict>
+		<key>Frameworks/shared_preferences_foundation.framework/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			92KpR6+7mszaethDzVM79q2rI9Tdygq/TwN7JX0Hgtc=
+			</data>
+		</dict>
+		<key>Frameworks/shared_preferences_foundation.framework/_CodeSignature/CodeResources</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Sb3EgEFmntky+oSVwpbsOMoVVl1iHlBfINp3fhc+LkE=
+			</data>
+		</dict>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			K7YxeLC9ZTfQ/dMFXZs92R5S4L+/Ca8IdrreCej774k=
+			</data>
+		</dict>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation_privacy.bundle/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			eUz+0/ULr1WbS1pdwzgIJMOyMWtDZ8+bXTs6qcZnte0=
+			</data>
+		</dict>
+		<key>Frameworks/shared_preferences_foundation.framework/shared_preferences_foundation_privacy.bundle/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			BWQouTi9VwGKYAGdFcPB7i+nJ/I2h1mLu9k0hIsYCxo=
+			</data>
+		</dict>
 		<key>Runner.debug.dylib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			SAFJM88whkeQAfLawItQ0XKP5a7fd2A1cVj7KWi3obY=
+			E+T5VjMO4RLI0Z7HWtjBLtfSPWUhA9g/FoNHq0Ve3qw=
 			</data>
 		</dict>
 		<key>__preview.dylib</key>

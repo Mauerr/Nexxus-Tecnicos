@@ -10,6 +10,7 @@ class LoginBlocCubit extends Cubit<LoginState> {
 
   LoginBlocCubit(this.authService) : super(LoginInitial());
 
+  /// Streams
   final _usuarioController = StreamController<String>.broadcast();
   final _passwordController = StreamController<String>.broadcast();
 
@@ -22,7 +23,7 @@ class LoginBlocCubit extends Cubit<LoginState> {
   Stream<bool> get validateForm => Rx.combineLatest2(
         usuarioStream,
         passwordStream,
-        (a, b) => a.toString().isNotEmpty && b.toString().isNotEmpty,
+        (u, p) => u.isNotEmpty && p.isNotEmpty,
       );
 
   Function(String) get changeUsuario => (value) {
@@ -35,6 +36,7 @@ class LoginBlocCubit extends Cubit<LoginState> {
         _passwordController.sink.add(_password);
       };
 
+  /// LOGIN
   Future<void> login() async {
     emit(LoginLoadingState());
 
@@ -44,6 +46,8 @@ class LoginBlocCubit extends Cubit<LoginState> {
       emit(LoginErrorState("Usuario o contraseña incorrectos"));
       return;
     }
+
+    await authService.saveSession(result);
 
     final role = result["role"];
 

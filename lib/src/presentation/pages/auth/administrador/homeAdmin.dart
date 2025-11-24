@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/services/auth_service.dart';
 import 'barrilExportPath.dart';
 
 
@@ -87,12 +88,13 @@ class HomeAdmin extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
                 tooltip: 'Cerrar sesión',
-                onPressed: () {
-                  // Redirigir a la pantalla de Login
+                onPressed: () async {
+                  await AuthService().clearSession();
+                  if (!context.mounted) return;
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const Loginpage()),
-                    (Route<dynamic> route) => false, // Limpia el stack
+                    MaterialPageRoute(builder: (_) => const Loginpage()),
+                    (route) => false,
                   );
                 },
               ),
