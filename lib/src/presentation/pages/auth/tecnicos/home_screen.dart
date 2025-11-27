@@ -1,12 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/administrador/barrilExportPath.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciakilometraje.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciamecanica.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/kilometraje/kilometraje_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexxus/src/services/auth_service.dart';
+import 'package:nexxus/src/presentation/pages/auth/login/LoginPage.dart';
 
-class HomeScreen extends StatelessWidget {
+// Pantallas
+import 'evidenciamecanica.dart';
+import 'kilometraje/evidenciakilometraje.dart';
+import 'evidenciahojalateria.dart';
+
+// Cubits
+import 'evidenciaMecanica_cubit.dart';
+
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String userName = "";
+  String unidadSeleccionada = "001 Volkswagen";
+
+  bool evidenciaMecanicaOk = false;
+  bool evidenciaKilometrajeOk = false;
+  bool evidenciaHojalateriaOk = false;
+
+  final List<String> unidades = [
+    "001 Volkswagen",
+    "002 Nissan NP300",
+    "003 Ford Transit",
+    "004 Toyota Hiace",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    cargarDatosUsuario();
+    cargarEstatusEvidencias();
+  }
+
+  Future<void> cargarDatosUsuario() async {
+    final data = await AuthService().getSession();
+    setState(() {
+      userName = data?["name"] ?? "Técnico";
+    });
+  }
+
+  Future<void> cargarEstatusEvidencias() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      evidenciaMecanicaOk = prefs.getBool("mecanica_ok") ?? false;
+      evidenciaKilometrajeOk = prefs.getBool("kilometraje_ok") ?? false;
+      evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,26 +66,25 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            /// Fondo
             Image.asset(
               'assets/img/background13.jpg',
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
+              height: double.infinity,
+              width: double.infinity,
               fit: BoxFit.cover,
-              color: const Color.fromRGBO(0, 0, 0, 0.7),
+              color: Colors.black54,
               colorBlendMode: BlendMode.darken,
             ),
 
-            /// Contenido principal
-            Container(
-              width: double.infinity,
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Bienvenido Julanito",
-                    style: TextStyle(
+                  const SizedBox(height: 20),
+
+                  Text(
+                    "Bienvenido $userName",
+                    style: const TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -43,68 +94,91 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 30),
 
                   const Text(
-                    "Unidad #",
-                    style: TextStyle(fontSize: 24, color: Colors.white),
+                    "Unidad asignada",
+                    style: TextStyle(fontSize: 22, color: Colors.white),
                   ),
 
                   const SizedBox(height: 10),
 
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      "001 Wolvasgen",
-                      style: TextStyle(fontSize: 18),
+                    child: DropdownButton<String>(
+                      value: unidadSeleccionada,
+                      isExpanded: true,
+                      underline: Container(),
+                      items: unidades.map((u) {
+                        return DropdownMenuItem(
+                          value: u,
+                          child: Text(u),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          unidadSeleccionada = value!;
+                        });
+                      },
                     ),
                   ),
 
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 50),
 
-                  /// Botones
-                  Center(
-                    child: Column(
-                      children: [
-                        customButton(
-                          context,
-                          "Evidencias Mecánicas",
-                          const EvidenciaMecanicaScreen(),
-                        ),
-                        const SizedBox(height: 20),
-                        customButton(
-                          context,
-                          "Evidencias Kilometraje",
-                          const EvidenciaKilometrajeScreen(),
-                        ),
-                        const SizedBox(height: 20),
-                        customButton(
-                          context,
-                          "Evidencias Hojalatería",
-                          const EvidenciaHojalateriaScreen(),
-                        ),
-                      ],
+                  /// 🔹 MECÁNICA — con BlocProvider
+                  botonMenuBloqueable(
+                    context,
+                    "Evidencias Mecánicas",
+                    BlocProvider(
+                      create: (_) => EvidenciaMecanicaCubit(),
+                      child: const EvidenciaMecanicaScreen(),
                     ),
+                    evidenciaMecanicaOk,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// 🔹 KILOMETRAJE — con BlocProvider
+                  botonMenuBloqueable(
+                    context,
+                    "Evidencias Kilometraje",
+                    BlocProvider(
+                      create: (_) => EvidenciaKilometrajeCubit(),
+                      child: const EvidenciaKilometrajeScreen(),
+                    ),
+                    evidenciaKilometrajeOk,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// 🔹 HOJALATERÍA — sin cambios por ahora
+                  botonMenuBloqueable(
+                    context,
+                    "Evidencias Hojalatería",
+                    const EvidenciaHojalateriaScreen(),
+                    evidenciaHojalateriaOk,
                   ),
                 ],
               ),
             ),
 
-            /// 🔹 Botón de logout (corregido)
             Positioned(
               top: 16,
               right: 16,
               child: IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
-                tooltip: 'Cerrar sesión',
+                tooltip: "Cerrar sesión",
                 onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+
+                  await prefs.remove("mecanica_ok");
+                  await prefs.remove("kilometraje_ok");
+                  await prefs.remove("hojalateria_ok");
+
                   await AuthService().clearSession();
 
-                  if (!context.mounted) return;
+                  if (!mounted) return;
 
                   Navigator.pushAndRemoveUntil(
                     context,
@@ -120,27 +194,36 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Botón personalizado
-  Widget customButton(BuildContext context, String text, Widget destination) {
+  /// 🔹 BOTÓN BLOQUEABLE
+  Widget botonMenuBloqueable(
+    BuildContext context,
+    String text,
+    Widget destino,
+    bool completado,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => destination),
-          );
-        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFD9D9D9),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          backgroundColor: completado ? Colors.grey.shade500 : const Color(0xFFD9D9D9),
           padding: const EdgeInsets.symmetric(vertical: 20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
+        onPressed: completado
+            ? null
+            : () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => destino),
+                );
+                cargarEstatusEvidencias();
+              },
         child: Text(
           text,
-          style: const TextStyle(fontSize: 20, color: Colors.black),
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.black.withOpacity(completado ? 0.4 : 1),
+          ),
         ),
       ),
     );

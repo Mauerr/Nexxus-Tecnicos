@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexxus/src/presentation/pages/auth/register/RegisterBlocState.dart';
-import 'package:rxdart_flutter/rxdart_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 class Registrebloccubit extends Cubit <Registerblocstate> {
   Registrebloccubit():super(RegisterInitial());

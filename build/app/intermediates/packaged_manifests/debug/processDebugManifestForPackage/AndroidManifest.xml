@@ -33,10 +33,6 @@
         </intent>
     </queries>
 
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-
     <permission
         android:name="com.example.nexxus.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
@@ -50,10 +46,6 @@
         android:extractNativeLibs="false"
         android:icon="@mipmap/ic_launcher"
         android:label="nexxus" >
-        <uses-permission android:name="android.permission.CAMERA" />
-        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
         <activity
             android:name="com.example.nexxus.MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -110,13 +102,6 @@
                 android:value="" />
         </service>
 
-        <uses-library
-            android:name="androidx.window.extensions"
-            android:required="false" />
-        <uses-library
-            android:name="androidx.window.sidecar"
-            android:required="false" />
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="com.example.nexxus.androidx-startup"
@@ -128,6 +113,13 @@
                 android:name="androidx.profileinstaller.ProfileInstallerInitializer"
                 android:value="androidx.startup" />
         </provider>
+
+        <uses-library
+            android:name="androidx.window.extensions"
+            android:required="false" />
+        <uses-library
+            android:name="androidx.window.sidecar"
+            android:required="false" />
 
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/camScreen.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciaMecanica_cubit.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciaMecanica_state.dart';
 
 class EvidenciaMecanicaScreen extends StatelessWidget {
   const EvidenciaMecanicaScreen({super.key});
+
+  Future<void> _guardarEstatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("mecanica_ok", true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,128 +18,152 @@ class EvidenciaMecanicaScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Fondo principal
             Image.asset(
               'assets/img/background13.jpg',
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
+              width: double.infinity,
+              height: double.infinity,
               fit: BoxFit.cover,
-              color: const Color.fromRGBO(0, 0, 0, 0.7),
+              color: Colors.black54,
               colorBlendMode: BlendMode.darken,
             ),
 
-            // Contenido principal
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
+            BlocBuilder<EvidenciaMecanicaCubit, EvidenciaMecanicaState>(
+              builder: (context, state) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
 
-                  // Botón regresar
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      tooltip: 'Regresar',
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-
-                  // Título centrado
-                  const Text(
-                    "Evidencia Mecánica",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 60),
-
-                  // Botones principales
-                  Expanded(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Botones de navegación
-                          _buildMainButton(context, "Aceite de motor"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Líquido de frenos"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Anticongelante"),
-                          const SizedBox(height: 20),
-                          _buildMainButton(context, "Etc"),
-                          const SizedBox(height: 40),
-
-                          // 🔹 Botón “Validar” más pequeño y centrado
-                          Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              child: _buildValidateButton(context),
-                            ),
-                          ),
-                        ],
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
+                        ),
                       ),
-                    ),
+
+                      const Text(
+                        "Evidencia Mecánica",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 60),
+
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildEvidenciaButton(
+                              context,
+                              "Aceite de motor",
+                              state.fotoAceite != null,
+                              () => context.read<EvidenciaMecanicaCubit>().tomarFotoAceite(),
+                            ),
+                            const SizedBox(height: 20),
+
+                            _buildEvidenciaButton(
+                              context,
+                              "Líquido de frenos",
+                              state.fotoFrenos != null,
+                              () => context.read<EvidenciaMecanicaCubit>().tomarFotoFrenos(),
+                            ),
+                            const SizedBox(height: 20),
+
+                            _buildEvidenciaButton(
+                              context,
+                              "Anticongelante",
+                              state.fotoAnticongelante != null,
+                              () => context.read<EvidenciaMecanicaCubit>().tomarFotoAnticongelante(),
+                            ),
+
+                            const SizedBox(height: 40),
+
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: ElevatedButton(
+                                onPressed: state.completado
+                                    ? () async {
+                                        // 🔹 Guardar completado
+                                        await _guardarEstatus();
+
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Evidencias validadas correctamente"),
+                                          ),
+                                        );
+
+                                        // 🔹 Regresar al Home y refrescarlo
+                                        Navigator.pop(context);
+                                      }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: state.completado
+                                      ? Colors.greenAccent
+                                      : Colors.grey.shade400,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Validar",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                );
+              },
+            )
           ],
         ),
       ),
     );
   }
 
-  // 🔹 Botón principal que navega a la cámara
-  Widget _buildMainButton(BuildContext context, String text) {
+  // 🔹 Botón con check verde
+  Widget _buildEvidenciaButton(
+    BuildContext context,
+    String texto,
+    bool completado,
+    VoidCallback onPressed,
+  ) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PantallaCamara()),
-          );
-        },
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFD9D9D9),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 20),
         ),
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 20, color: Colors.black),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              texto,
+              style: const TextStyle(fontSize: 20, color: Colors.black),
+            ),
+            if (completado) ...[
+              const SizedBox(width: 12),
+              const Icon(Icons.check_circle, color: Colors.green, size: 26),
+            ],
+          ],
         ),
-      ),
-    );
-  }
-
-  // 🔹 Botón “Validar”
-  Widget _buildValidateButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Validando evidencias...')),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFD9D9D9),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-      child: const Text(
-        "Validar",
-        style: TextStyle(fontSize: 18, color: Colors.black),
       ),
     );
   }
