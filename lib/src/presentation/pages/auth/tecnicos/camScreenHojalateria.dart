@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidenciahojalateria.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/hojalateria/evidenciahojalateria.dart';
 
 class PantallaCamaraHojalateria extends StatelessWidget {
   const PantallaCamaraHojalateria({super.key});

@@ -6,12 +6,12 @@ import 'package:nexxus/src/services/auth_service.dart';
 import 'package:nexxus/src/presentation/pages/auth/login/LoginPage.dart';
 
 // Pantallas
-import 'evidenciamecanica.dart';
+import 'mecanica/evidenciamecanica.dart';
 import 'kilometraje/evidenciakilometraje.dart';
-import 'evidenciahojalateria.dart';
+import 'hojalateria/evidenciahojalateria.dart';
 
 // Cubits
-import 'evidenciaMecanica_cubit.dart';
+import 'mecanica/evidenciaMecanica_cubit.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -125,6 +125,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   const SizedBox(height: 50),
+                  /// 🔹 MENSAJE FINAL CUANDO TODO ESTÁ COMPLETADO
+                  if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 30),
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.greenAccent, width: 1.5),
+                      ),
+                      child: Column(
+                        children: const [
+                          Text(
+                            "¡Has completado todas las evidencias!",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Puedes tomar tu unidad. y cerrar tu sesión en el icono superior. Gracias",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+
 
                   /// 🔹 MECÁNICA — con BlocProvider
                   botonMenuBloqueable(
