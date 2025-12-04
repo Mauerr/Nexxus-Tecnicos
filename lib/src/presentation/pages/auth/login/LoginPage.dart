@@ -79,7 +79,7 @@ class _LoginpageState extends State<Loginpage> {
                 children: [
                   const Icon(Icons.person, color: Colors.white, size: 125),
                   const Text(
-                    'LOGIN',
+                  'LOGIN',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -123,7 +123,10 @@ class _LoginpageState extends State<Loginpage> {
                   // 🔹 Botón iniciar sesión
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 35,
+                      vertical: 15,
+                    ),
                     height: 50,
                     child: StreamBuilder(
                       stream: _loginCubit.validateForm,
@@ -135,8 +138,9 @@ class _LoginpageState extends State<Loginpage> {
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                snapshot.hasData ? Colors.green : Colors.grey,
+                            backgroundColor: snapshot.hasData
+                                ? Colors.green
+                                : Colors.grey,
                           ),
                           child: const Text(
                             'INICIAR SESION',
@@ -152,19 +156,23 @@ class _LoginpageState extends State<Loginpage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Text("No tienes cuenta?",
-                          style: TextStyle(color: Colors.white, fontSize: 16)),
+                      Text(
+                        "No tienes cuenta?",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
                     ],
                   ),
 
                   // Registrar
                   Container(
                     width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 35,
+                      vertical: 15,
+                    ),
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, 'registro'),
+                      onPressed: () => Navigator.pushNamed(context, 'registro'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                       ),

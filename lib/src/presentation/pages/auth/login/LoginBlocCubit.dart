@@ -21,22 +21,22 @@ class LoginBlocCubit extends Cubit<LoginState> {
   Stream<String> get passwordStream => _passwordController.stream;
 
   Stream<bool> get validateForm => Rx.combineLatest2(
-        usuarioStream,
-        passwordStream,
-        (u, p) => u.isNotEmpty && p.isNotEmpty,
-      );
+    usuarioStream,
+    passwordStream,
+    (u, p) => u.isNotEmpty && p.isNotEmpty,
+  );
 
   Function(String) get changeUsuario => (value) {
-        _usuario = value.trim();
-        _usuarioController.sink.add(_usuario);
-      };
+    _usuario = value.trim();
+    _usuarioController.sink.add(_usuario);
+  };
 
   Function(String) get changepassword => (value) {
-        _password = value.trim();
-        _passwordController.sink.add(_password);
-      };
+    _password = value.trim();
+    _passwordController.sink.add(_password);
+  };
 
-  /// LOGIN
+  /// 🔹 LOGIN
   Future<void> login() async {
     emit(LoginLoadingState());
 
@@ -47,13 +47,17 @@ class LoginBlocCubit extends Cubit<LoginState> {
       return;
     }
 
-    await authService.saveSession(result);
+    // 🔹 Obtener rol desde el JSON real
+    if (result.user.roles.isEmpty) {
+      emit(LoginErrorState("El usuario no tiene roles asignados"));
+      return;
+    }
 
-    final role = result["role"];
+    final role = result.user.roles.first.id.toLowerCase();
 
     if (role == "admin") {
       emit(LoginSuccessAdminState());
-    } else if (role == "tecnico") {
+    } else if (role == "tec") {
       emit(LoginSuccessTecnicoState());
     } else {
       emit(LoginErrorState("Rol desconocido"));
