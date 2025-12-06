@@ -25,9 +25,7 @@ class AuthService {
         }),
       );
 
-      if (res.statusCode != 200) {
-        return null;
-      }
+      if (res.statusCode != 200) return null;
 
       final data = jsonDecode(res.body);
       final loginResponse = LoginResponse.fromJson(data);
@@ -39,6 +37,43 @@ class AuthService {
     } catch (e) {
       print("LOGIN ERROR: $e");
       return null;
+    }
+  }
+
+  /// ----------------------------
+  /// REGISTRO
+  /// ----------------------------
+  Future<bool> register({
+    required String name,
+    required String lastname,
+    required String phone,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/registro");
+
+      final res = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "name": name,
+          "lastname": lastname,
+          "phone": phone,
+          "email": email,
+          "password": password,
+        }),
+      );
+
+      print("STATUS: ${res.statusCode}");
+      print("BODY: ${res.body}");
+
+      // 201 o 200 → éxito según tu backend
+      return res.statusCode == 200 || res.statusCode == 201;
+
+    } catch (e) {
+      print("REGISTER ERROR: $e");
+      return false;
     }
   }
 
@@ -64,53 +99,32 @@ class AuthService {
     return UserModel.fromJson(jsonDecode(data));
   }
 
-/// ----------------------------
-  /// LEER SESIÓN COMPLETA (token + user)
-  /// Este método lo pide tu LoginGate, HomeScreen, etc.
-
-    Future<Map<String, dynamic>?> getSession() async {
-  final prefs = await SharedPreferences.getInstance();
-
-  final token = prefs.getString("token");
-  final userStr = prefs.getString("user");
-
-  if (token == null || userStr == null) return null;
-
-  final userJson = jsonDecode(userStr);
-
-  // Recuperar el primer rol
-  final role = (userJson["roles"] as List).isNotEmpty
-      ? userJson["roles"][0]["id"].toString().toLowerCase()
-      : null;
-
-  return {
-    "token": token,
-    "name": userJson["name"],
-    "role": role,
-  };
-}
-
-
   /// ----------------------------
-  /// LEER SESIÓN COMPLETA (token + user)
-  /// Este método lo pide tu LoginGate, HomeScreen, etc.
+  /// SESIÓN COMPLETA
   /// ----------------------------
-  /*Future<Map<String, dynamic>?> getSession() async {
+  Future<Map<String, dynamic>?> getSession() async {
     final prefs = await SharedPreferences.getInstance();
 
     final token = prefs.getString("token");
-    final user = prefs.getString("user");
+    final userStr = prefs.getString("user");
 
-    if (token == null || user == null) return null;
+    if (token == null || userStr == null) return null;
+
+    final userJson = jsonDecode(userStr);
+
+    final role = (userJson["roles"] as List).isNotEmpty
+        ? userJson["roles"][0]["id"].toString().toLowerCase()
+        : null;
 
     return {
       "token": token,
-      "user": jsonDecode(user),
+      "name": userJson["name"],
+      "role": role,
     };
-  }*/
+  }
 
   /// ----------------------------
-  /// OBTENER SOLO TOKEN
+  /// TOKEN SOLAMENTE
   /// ----------------------------
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -118,7 +132,7 @@ class AuthService {
   }
 
   /// ----------------------------
-  /// CERRAR SESIÓN
+  /// LOGOUT
   /// ----------------------------
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();

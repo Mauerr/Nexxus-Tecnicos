@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nexxus/src/presentation/pages/auth/register/RegisterBlocState.dart';
 import 'package:nexxus/src/presentation/pages/auth/register/RegistreBlocCubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/widgets/DefaultBotton.dart';
 import 'package:nexxus/src/presentation/pages/auth/widgets/DefaultIconBack.dart';
@@ -14,27 +15,35 @@ class Registrepage extends StatefulWidget {
 }
 
 class _RegistrepageState extends State<Registrepage> {
-
   Registrebloccubit? _registrebloccubit;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // Desechar el cubit cuando se abandona la pantalla
       _registrebloccubit?.dispose();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    _registrebloccubit = BlocProvider.of<Registrebloccubit>(context, listen: false);
+    _registrebloccubit =
+        BlocProvider.of<Registrebloccubit>(context, listen: false);
 
     return Scaffold(
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+      body: BlocListener<Registrebloccubit, Registerblocstate>(
+        listener: (context, state) {
+          if (state is RegisterLoading) {
+            Fluttertoast.showToast(msg: "Registrando...");
+          }
+          if (state is RegisterSuccess) {
+            Fluttertoast.showToast(msg: "Registro exitoso");
+            Navigator.pop(context);
+          }
+          if (state is RegisterError) {
+            Fluttertoast.showToast(msg: state.message);
+          }
+        },
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -46,8 +55,10 @@ class _RegistrepageState extends State<Registrepage> {
               color: Color.fromRGBO(0, 0, 0, 0.7),
               colorBlendMode: BlendMode.darken,
             ),
-            // Funcion Icono Back
+
+            // Botón Back
             Defaulticonback(izq: 5, top: 25),
+
             Container(
               height: MediaQuery.of(context).size.height * 0.70,
               width: MediaQuery.of(context).size.width * 0.85,
@@ -67,120 +78,123 @@ class _RegistrepageState extends State<Registrepage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
+                    // NOMBRE
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.nameStream,
-                        builder: (context, asyncSnapshot) {
-                          return DefaultTextfield(
-                            label: 'Nombre',
-                            icon: Icons.person,
-                            errorText: asyncSnapshot.error?.toString(),
-                            onChange: (text) {
-                              _registrebloccubit?.ChangeName(text);
-                            },
-                          );
-                        }
-                      ),
+                          stream: _registrebloccubit?.nameStream,
+                          builder: (context, asyncSnapshot) {
+                            return DefaultTextfield(
+                              label: 'Nombre',
+                              icon: Icons.person,
+                              errorText: asyncSnapshot.error?.toString(),
+                              onChange: (text) {
+                                _registrebloccubit?.ChangeName(text);
+                              },
+                            );
+                          }),
                     ),
+
+                    // APELLIDO
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.lastnameStream,
-                        builder: (context, asyncSnapshot) {
-                          return DefaultTextfield(
-                            label: 'Apellido',
-                            icon: Icons.person,
-                            errorText: asyncSnapshot.error?.toString(),
-                            onChange: (text) {
-                              _registrebloccubit?.ChangeLastName(text);
-                            },
-                          );
-                        }
-                      ),
+                          stream: _registrebloccubit?.lastnameStream,
+                          builder: (context, asyncSnapshot) {
+                            return DefaultTextfield(
+                              label: 'Apellido',
+                              icon: Icons.person,
+                              errorText: asyncSnapshot.error?.toString(),
+                              onChange: (text) {
+                                _registrebloccubit?.ChangeLastName(text);
+                              },
+                            );
+                          }),
                     ),
+
+                    // TELÉFONO
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.phoneStream,
-                        builder: (context, asyncSnapshot) {
-                          return DefaultTextfield(
-                            label: 'Telefono',
-                            icon: Icons.phone,
-                            errorText: asyncSnapshot.error?.toString(),
-                            onChange: (text) {
-                              _registrebloccubit?.ChangePhone(text);
-                            },
-                          );
-                        }
-                      ),
+                          stream: _registrebloccubit?.phoneStream,
+                          builder: (context, asyncSnapshot) {
+                            return DefaultTextfield(
+                              label: 'Teléfono',
+                              icon: Icons.phone,
+                              errorText: asyncSnapshot.error?.toString(),
+                              onChange: (text) {
+                                _registrebloccubit?.ChangePhone(text);
+                              },
+                            );
+                          }),
                     ),
-                    
+
+                    // NUEVO CAMPO EMAIL
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.passwordStream,
+                        stream: _registrebloccubit?.emailStream,
                         builder: (context, asyncSnapshot) {
                           return DefaultTextfield(
-                            label: 'Contraseña',
-                            icon: Icons.lock,
+                            label: 'Correo electrónico',
+                            icon: Icons.email,
                             errorText: asyncSnapshot.error?.toString(),
-                            //obscureText: true,
                             onChange: (text) {
-                              _registrebloccubit?.ChangePassword(text);
+                              _registrebloccubit?.ChangeEmail(text);
                             },
                           );
-                        }
+                        },
                       ),
                     ),
+
+                    // CONTRASEÑA
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.confirmpasswordStream,
-                        builder: (context, asyncSnapshot) {
-                          return DefaultTextfield(
-                            label: 'Confirmar Contraseña',
-                            icon: Icons.lock_outline,
-                            errorText: asyncSnapshot.error?.toString(),
-                            //obscureText: true,
-                            onChange: (text) {
-                              _registrebloccubit?.ChangeConfirmPassword(text);
-                            },
-                          );
-                        }
-                      ),
+                          stream: _registrebloccubit?.passwordStream,
+                          builder: (context, asyncSnapshot) {
+                            return DefaultTextfield(
+                              label: 'Contraseña',
+                              icon: Icons.lock,
+                              errorText: asyncSnapshot.error?.toString(),
+                              onChange: (text) {
+                                _registrebloccubit?.ChangePassword(text);
+                              },
+                            );
+                          }),
                     ),
+
+                    // ⚠️ CAMPO ELIMINADO: CONFIRMAR CONTRASEÑA
+
+                    // BOTÓN REGISTRARSE
                     Container(
-                      margin: EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 25,
-                      ),
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 25, vertical: 25),
                       child: StreamBuilder(
-                        stream: _registrebloccubit?.validateForm,
-                        builder: (context, asyncSnapshot) {
-                          return Defaultbotton(
-                            text: 'Registrarse',
-                            // Cambio de color de botón al validar
-                            color: asyncSnapshot.hasData ? Colors.blue : Colors.grey,
-                            onPressed: () {
-                              if (asyncSnapshot.hasData) {
-                                _registrebloccubit?.register();
-                                //Navigator.pushNamed(context, 'login');
-                              }
-                              else{
-                                Fluttertoast.showToast(
-                                  msg: "Por favor completa todos los campos correctamente",
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.BOTTOM,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                                );
-                              }
-                            },
-                          );
-                        }
-                      ),
+                          stream: _registrebloccubit?.validateForm,
+                          builder: (context, asyncSnapshot) {
+                            return Defaultbotton(
+                              text: 'Registrarse',
+                              color: asyncSnapshot.hasData
+                                  ? Colors.blue
+                                  : Colors.grey,
+                              onPressed: () {
+                                if (asyncSnapshot.hasData) {
+                                  _registrebloccubit?.register();
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg:
+                                          "Por favor completa todos los campos correctamente",
+                                      toastLength: Toast.LENGTH_LONG,
+                                      gravity: ToastGravity.BOTTOM,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                }
+                              },
+                            );
+                          }),
                     ),
                   ],
                 ),
