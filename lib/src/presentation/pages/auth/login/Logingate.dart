@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/models/user_model.dart';
 import 'package:nexxus/src/services/auth_service.dart';
 import '../login/LoginPage.dart';
 import '../administrador/homeAdmin.dart';
-import '../tecnicos/home_screen.dart';
+import '../tecnicos/inicio/home_screen.dart';
+
 
 class SessionGate extends StatelessWidget {
   final AuthService authService;
@@ -11,8 +13,8 @@ class SessionGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: authService.getSession(),
+    return FutureBuilder<UserModel?>(
+      future: authService.getLoggedUser(),
       builder: (context, snapshot) {
         
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -21,13 +23,16 @@ class SessionGate extends StatelessWidget {
           );
         }
 
-        final session = snapshot.data;
+        final user = snapshot.data;
 
-        if (session == null) {
+        if (user == null) {
           return const Loginpage();
         }
 
-        final role = session["role"];
+        /// 🔹 Tomamos el rol desde el modelo
+        final role = user.roles.isNotEmpty
+            ? user.roles.first.id.toString().toLowerCase()
+            : null;
 
         if (role == "admin") {
           return const HomeAdmin();

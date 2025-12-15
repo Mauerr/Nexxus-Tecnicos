@@ -9,7 +9,7 @@ import 'package:nexxus/src/presentation/pages/auth/administrador/homeAdmin.dart'
 import 'package:nexxus/src/presentation/pages/auth/login/LoginPage.dart';
 import 'package:nexxus/src/presentation/pages/auth/register/RegistrePage.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/evidencia_mecanica.dart';
-import 'package:nexxus/src/presentation/pages/auth/tecnicos/home_screen.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_screen.dart';
 
 
 void main() {

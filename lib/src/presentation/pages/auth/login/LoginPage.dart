@@ -4,9 +4,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocCubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/login/LoginBlocState.dart';
+
 import 'package:nexxus/src/presentation/pages/auth/widgets/DefaultTextfield.dart';
+
 import '../administrador/homeAdmin.dart';
-import '../tecnicos/home_screen.dart';
+import '../tecnicos/inicio/home_screen.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -49,7 +51,9 @@ class _LoginpageState extends State<Loginpage> {
           if (state is LoginSuccessTecnicoState) {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (_) => const HomeScreen()),
+              MaterialPageRoute(
+                builder: (_) => const HomeScreen(),
+              ),
             );
           }
         },
@@ -128,26 +132,17 @@ class _LoginpageState extends State<Loginpage> {
                       vertical: 15,
                     ),
                     height: 50,
-                    child: StreamBuilder(
-                      stream: _loginCubit.validateForm,
-                      builder: (_, snapshot) {
-                        return ElevatedButton(
-                          onPressed: snapshot.hasData
-                              ? () {
-                                  _loginCubit.login();
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: snapshot.hasData
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
-                          child: const Text(
-                            'INICIAR SESION',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        );
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _loginCubit.login();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      child: const Text(
+                        'INICIAR SESION',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
 

@@ -20,11 +20,13 @@ class LoginBlocCubit extends Cubit<LoginState> {
   Stream<String> get usuarioStream => _usuarioController.stream;
   Stream<String> get passwordStream => _passwordController.stream;
 
-  Stream<bool> get validateForm => Rx.combineLatest2(
+  /*Stream<bool> get validateForm => Rx.combineLatest2(
     usuarioStream,
     passwordStream,
     (u, p) => u.isNotEmpty && p.isNotEmpty,
-  );
+  );*/
+  Stream<bool> get validateForm => Stream.value(true);
+
 
   Function(String) get changeUsuario => (value) {
     _usuario = value.trim();
@@ -38,6 +40,11 @@ class LoginBlocCubit extends Cubit<LoginState> {
 
   /// 🔹 LOGIN
   Future<void> login() async {
+    if (_usuario.isEmpty || _password.isEmpty) {
+      emit(LoginErrorState("Por favor, ingrese usuario y contraseña"));
+      return;
+    }
+
     emit(LoginLoadingState());
 
     final result = await authService.login(_usuario, _password);

@@ -1,24 +1,26 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/car_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nexxus/src/presentation/pages/auth/login/login_response.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-
-  final String baseUrl = "http://10.15.14.20:3000/auth";
+  final String baseUrl = "http://10.15.14.20:3000";
 
   /// ----------------------------
   /// LOGIN
   /// ----------------------------
   Future<LoginResponse?> login(String email, String password) async {
     try {
-      final url = Uri.parse("$baseUrl/login");
+      final url = Uri.parse("$baseUrl/auth/login");
 
       final res = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: const {
+          "Content-Type": "application/json",
+        },
         body: jsonEncode({
           "email": email,
           "password": password,
@@ -31,9 +33,7 @@ class AuthService {
       final loginResponse = LoginResponse.fromJson(data);
 
       await _saveSession(loginResponse);
-
       return loginResponse;
-
     } catch (e) {
       print("LOGIN ERROR: $e");
       return null;
@@ -51,11 +51,13 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final url = Uri.parse("$baseUrl/registro");
+      final url = Uri.parse("$baseUrl/auth/registro");
 
       final res = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: const {
+          "Content-Type": "application/json",
+        },
         body: jsonEncode({
           "name": name,
           "lastname": lastname,
@@ -65,12 +67,7 @@ class AuthService {
         }),
       );
 
-      print("STATUS: ${res.statusCode}");
-      print("BODY: ${res.body}");
-
-      // 201 o 200 → éxito según tu backend
       return res.statusCode == 200 || res.statusCode == 201;
-
     } catch (e) {
       print("REGISTER ERROR: $e");
       return false;
@@ -81,46 +78,50 @@ class AuthService {
   /// GUARDAR SESIÓN
   /// ----------------------------
   Future<void> _saveSession(LoginResponse response) async {
-    final prefs = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
 
-    await prefs.setString("token", response.accessToken);
-    await prefs.setString("user", jsonEncode(response.user.toJson()));
+  // Normalizar token (quitar "Bearer " si viene incluido)
+  String token = response.accessToken.trim();
+  if (token.startsWith("Bearer ")) {
+    token = token.replaceFirst("Bearer ", "");
+  }
+
+  await prefs.setString("token", token);
+  await prefs.setString("user", jsonEncode(response.user.toJson()));
+}
+
+  /// ----------------------------
+  /// HEADERS AUTENTICADOS (CLAVE)
+  /// ----------------------------
+  Future<Map<String, String>> authHeaders() async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("token");
+
+    if (token == null || token.isEmpty) {
+      throw Exception("Token no disponible");
+    }
+
+    // Asegurar que el token no tenga espacios extra ni el prefijo Bearer duplicado
+    token = token.trim();
+    if (token.startsWith("Bearer ")) {
+      token = token.replaceFirst("Bearer ", "");
+    }
+
+    return {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
   }
 
   /// ----------------------------
-  /// LEER USUARIO LOGGEADO
+  /// USUARIO LOGGEADO
   /// ----------------------------
   Future<UserModel?> getLoggedUser() async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString("user");
 
     if (data == null) return null;
-
     return UserModel.fromJson(jsonDecode(data));
-  }
-
-  /// ----------------------------
-  /// SESIÓN COMPLETA
-  /// ----------------------------
-  Future<Map<String, dynamic>?> getSession() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final token = prefs.getString("token");
-    final userStr = prefs.getString("user");
-
-    if (token == null || userStr == null) return null;
-
-    final userJson = jsonDecode(userStr);
-
-    final role = (userJson["roles"] as List).isNotEmpty
-        ? userJson["roles"][0]["id"].toString().toLowerCase()
-        : null;
-
-    return {
-      "token": token,
-      "name": userJson["name"],
-      "role": role,
-    };
   }
 
   /// ----------------------------
@@ -137,5 +138,22 @@ class AuthService {
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  /// ----------------------------
+  /// LISTADO DE CARROS
+  /// ----------------------------
+  Future<List<CarModel>> getAllCars() async {
+    final url = Uri.parse("$baseUrl/cars/all");
+    final headers = await authHeaders();
+
+    final res = await http.get(url, headers: headers);
+
+    if (res.statusCode != 200) {
+      throw Exception("Error ${res.statusCode}: ${res.body}");
+    }
+
+    final List data = jsonDecode(res.body);
+    return data.map((e) => CarModel.fromJson(e)).toList();
   }
 }
