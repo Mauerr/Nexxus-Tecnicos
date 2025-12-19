@@ -75,6 +75,32 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// REGISTRO DE VEHÍCULO
+  /// ----------------------------
+  Future<bool> registerCar(Map<String, dynamic> carData) async {
+    try {
+      final url = Uri.parse("$baseUrl/cars/register");
+      // Obtenemos los headers con el Token (Authorization)
+      final headers = await authHeaders();
+
+      final res = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(carData),
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        return true;
+      }
+      print("❌ ERROR REGISTRO CARRO (${res.statusCode}): ${res.body}");
+      return false;
+    } catch (e) {
+      print("REGISTER CAR ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// GUARDAR SESIÓN
   /// ----------------------------
   Future<void> _saveSession(LoginResponse response) async {

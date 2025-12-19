@@ -14,3 +14,4 @@ export  'package:nexxus/src/presentation/pages/auth/administrador/validaciondeve
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciahojalateriaadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciakilometricaadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciasmecanicasadmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/registro%20vehiculo/registrovehiculo.dart';
