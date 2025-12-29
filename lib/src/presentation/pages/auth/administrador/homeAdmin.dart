@@ -59,6 +59,12 @@ class HomeAdmin extends StatelessWidget {
                         const SizedBox(height: 20),
                         customButton(
                           context,
+                          "Editar Vehículo",
+                          const EditarVehiculoScreen(),
+                        ),
+                        const SizedBox(height: 20),
+                        customButton(
+                          context,
                           "Validación de Vehículos",
                           const OpcionesCarroAdmin(),
                         ),

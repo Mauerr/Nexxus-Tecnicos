@@ -6,8 +6,21 @@ import 'package:nexxus/src/presentation/pages/auth/tecnicos/kilometraje/kilometr
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class EvidenciaKilometrajeScreen extends StatelessWidget {
+class EvidenciaKilometrajeScreen extends StatefulWidget {
   const EvidenciaKilometrajeScreen({super.key});
+
+  @override
+  State<EvidenciaKilometrajeScreen> createState() => _EvidenciaKilometrajeScreenState();
+}
+
+class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen> {
+  final TextEditingController _kmController = TextEditingController();
+
+  @override
+  void dispose() {
+    _kmController.dispose();
+    super.dispose();
+  }
 
   Future<void> _guardarValidacion() async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,35 +73,35 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const Text(
+                              "KM inicial",
+                              style: TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                            const SizedBox(height: 10),
+
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: TextField(
+                                controller: _kmController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (_) => setState(() {}),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
                             _buildEvidenciaButton(
                               context,
                               "KM inicio del día",
                               state.fotoKmInicio != null,
                               () => context.read<EvidenciaKilometrajeCubit>().tomarFotoKmInicio(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "KM fin del día",
-                              state.fotoKmFin != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoKmFin(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "Asientos delanteros",
-                              state.fotoAsientosDel != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoAsientosDel(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "Asientos traseros",
-                              state.fotoAsientosTras != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoAsientosTras(),
                             ),
 
                             const SizedBox(height: 40),
@@ -97,7 +110,7 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: ElevatedButton(
-                                onPressed: state.completado
+                                onPressed: state.fotoKmInicio != null && _kmController.text.isNotEmpty
                                     ? () async {
                                         await _guardarValidacion();
 
@@ -117,7 +130,7 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                                       }
                                     : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: state.completado
+                                  backgroundColor: state.fotoKmInicio != null && _kmController.text.isNotEmpty
                                       ? Colors.greenAccent
                                       : Colors.grey.shade400,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -129,7 +142,9 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                                   "Validar",
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: state.completado ? Colors.black : Colors.grey.shade700,
+                                    color: state.fotoKmInicio != null && _kmController.text.isNotEmpty
+                                        ? Colors.black
+                                        : Colors.grey.shade700,
                                   ),
                                 ),
                               ),

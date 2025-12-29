@@ -12,6 +12,7 @@ import 'package:nexxus/src/presentation/pages/auth/login/LoginPage.dart';
 import '../mecanica/evidenciamecanica.dart';
 import '../kilometraje/evidenciakilometraje.dart';
 import '../hojalateria/evidenciahojalateria.dart';
+import '../tapiceria/evidencia_tapiceria_screen.dart';
 
 // Cubits
 import '../mecanica/evidenciaMecanica_cubit.dart';
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool evidenciaMecanicaOk = false;
   bool evidenciaKilometrajeOk = false;
   bool evidenciaHojalateriaOk = false;
+  bool evidenciaTapiceriaOk = false;
 
   /*final List<String> unidades = [
     "001 Volkswagen",
@@ -61,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       evidenciaMecanicaOk = prefs.getBool("mecanica_ok") ?? false;
       evidenciaKilometrajeOk = prefs.getBool("kilometraje_ok") ?? false;
       evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
+      evidenciaTapiceriaOk = prefs.getBool("tapiceria_ok") ?? false;
     });
   }
 
@@ -113,10 +116,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
 
                       if (state is HomeLoaded) {
+                        // Bloquear selección si ya se inició la toma de evidencias
+                        final bool isLocked = evidenciaMecanicaOk || evidenciaKilometrajeOk || evidenciaHojalateriaOk || evidenciaTapiceriaOk;
+
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: isLocked ? Colors.grey.shade300 : Colors.white,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: DropdownButtonHideUnderline(
@@ -127,12 +133,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             items: state.cars.map((car) {
                               return DropdownMenuItem(
                                 value: car,
-                                // Asegúrate que tu modelo CarModel tenga una propiedad 'label' o 'name'
-                                // Si no, cambia 'car.label' por la propiedad correcta, ej: car.placa
-                                child: Text(car.label, style: const TextStyle(color: Colors.black87)),
+                                child: Text(
+                                  car.label,
+                                  style: TextStyle(color: isLocked ? Colors.grey : Colors.black87),
+                                ),
                               );
                             }).toList(),
-                            onChanged: (value) {
+                            onChanged: isLocked ? null : (value) {
                               if (value != null) {
                                 context.read<HomeCubit>().changeCar(value);
                               }
@@ -177,38 +184,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 50),
                   /// 🔹 MENSAJE FINAL CUANDO TODO ESTÁ COMPLETADO
-                  if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 30),
-                      decoration: BoxDecoration(
-                        color: Colors.greenAccent.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.greenAccent, width: 1.5),
-                      ),
-                      child: Column(
-                        children: const [
-                          Text(
-                            "¡Has completado todas las evidencias!",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
+                  if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk)
+                    Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.greenAccent, width: 1.5),
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            "Puedes tomar tu unidad. y cerrar tu sesión en el icono superior. Gracias",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                            ),
-                            textAlign: TextAlign.center,
+                          child: Column(
+                            children: const [
+                              Text(
+                                "¡Has completado todas las evidencias!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Puedes tomar tu unidad. Presiona Finalizar para cerrar sesión.",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 16,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.remove("mecanica_ok");
+                              await prefs.remove("kilometraje_ok");
+                              await prefs.remove("hojalateria_ok");
+                              await prefs.remove("tapiceria_ok");
+                              await AuthService().clearSession();
+
+                              if (!mounted) return;
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(builder: (_) => const Loginpage()),
+                                (route) => false,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              "Finalizar",
+                              style: TextStyle(fontSize: 20, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
 
 
@@ -245,6 +288,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     const EvidenciaHojalateriaScreen(),
                     evidenciaHojalateriaOk,
                   ),
+
+                  const SizedBox(height: 20),
+
+                  /// 🔹 TAPICERÍA
+                  botonMenuBloqueable(
+                    context,
+                    "Evidencias Tapicería",
+                    const EvidenciaTapiceriaScreen(),
+                    evidenciaTapiceriaOk,
+                  ),
                 ],
               ),
             ),
@@ -261,6 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   await prefs.remove("mecanica_ok");
                   await prefs.remove("kilometraje_ok");
                   await prefs.remove("hojalateria_ok");
+                  await prefs.remove("tapiceria_ok");
 
                   await AuthService().clearSession();
 
@@ -292,7 +346,9 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: completado ? Colors.grey.shade500 : const Color(0xFFD9D9D9),
+          backgroundColor: const Color(0xFFD9D9D9),
+          disabledBackgroundColor: Colors.grey, // Color de fondo cuando está validado
+          disabledForegroundColor: Colors.black38, // Color del texto/icono cuando está validado
           padding: const EdgeInsets.symmetric(vertical: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
@@ -309,7 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
           text,
           style: TextStyle(
             fontSize: 20,
-            color: Colors.black.withOpacity(completado ? 0.4 : 1),
+            color: completado ? Colors.black45 : Colors.black,
           ),
         ),
       ),
