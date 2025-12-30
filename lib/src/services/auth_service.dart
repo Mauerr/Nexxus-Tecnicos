@@ -101,6 +101,44 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// ASIGNAR VEHÍCULO (Assignment)
+  /// ----------------------------
+  Future<bool> createAssignment({required int userId, required int carId}) async {
+    try {
+      final url = Uri.parse("$baseUrl/assignment/create-assignment-evidence");
+      final headers = await authHeaders();
+
+      final body = {
+        "user_id": userId,
+        "car_id": carId,
+      };
+
+      print("🚀 Creating Assignment...");
+      print("   URL: $url");
+      print("   Body: $body");
+
+      final res = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      print("✅ Response Status: ${res.statusCode}");
+      print("📦 Response Body: ${res.body}");
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        print("   -> Assignment Created Successfully!");
+        return true;
+      }
+      print("❌ ERROR ASIGNACIÓN (${res.statusCode}): ${res.body}");
+      return false;
+    } catch (e) {
+      print("ASSIGNMENT ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// GUARDAR SESIÓN
   /// ----------------------------
   Future<void> _saveSession(LoginResponse response) async {
@@ -163,7 +201,9 @@ class AuthService {
   /// ----------------------------
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    // Solo removemos credenciales, mantenemos configuraciones persistentes como asignación de vehículo
+    await prefs.remove("token");
+    await prefs.remove("user");
   }
 
   /// ----------------------------

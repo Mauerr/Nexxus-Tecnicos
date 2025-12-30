@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool evidenciaKilometrajeOk = false;
   bool evidenciaHojalateriaOk = false;
   bool evidenciaTapiceriaOk = false;
+  bool vehiculoAsignado = false;
 
   /*final List<String> unidades = [
     "001 Volkswagen",
@@ -64,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       evidenciaKilometrajeOk = prefs.getBool("kilometraje_ok") ?? false;
       evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
       evidenciaTapiceriaOk = prefs.getBool("tapiceria_ok") ?? false;
+      vehiculoAsignado = prefs.getBool("vehiculo_asignado") ?? false;
     });
   }
 
@@ -117,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       if (state is HomeLoaded) {
                         // Bloquear selección si ya se inició la toma de evidencias
-                        final bool isLocked = evidenciaMecanicaOk || evidenciaKilometrajeOk || evidenciaHojalateriaOk || evidenciaTapiceriaOk;
+                        final bool isLocked = evidenciaMecanicaOk || evidenciaKilometrajeOk || evidenciaHojalateriaOk || evidenciaTapiceriaOk || vehiculoAsignado;
 
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -141,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             }).toList(),
                             onChanged: isLocked ? null : (value) {
                               if (value != null) {
-                                context.read<HomeCubit>().changeCar(value);
+                                _mostrarAlertaAsignacion(context, value);
                               }
                             },
                           ),
@@ -333,6 +335,70 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       ),
     );
+  }
+
+  /// 🔹 ALERTA DE CONFIRMACIÓN DE ASIGNACIÓN
+  void _mostrarAlertaAsignacion(BuildContext context, CarModel car) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Confirmar Asignación"),
+        content: Text("¿Está seguro de seleccionar la unidad ${car.label}? \n\nUna vez aceptado, se asignará a su usuario y no podrá cambiarla."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text("Cancelar", style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx); // Cerrar alerta
+              _realizarAsignacion(car);
+            },
+            child: const Text("Aceptar", style: TextStyle(color: Colors.blue)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 🔹 LÓGICA PARA ASIGNAR VEHÍCULO EN BACKEND
+  Future<void> _realizarAsignacion(CarModel car) async {
+    final authService = AuthService();
+    final user = await authService.getLoggedUser();
+
+    if (user != null && user.id != null && car.id != null) {
+      // Intentamos parsear los IDs a int como requiere el backend
+      final int userId = user.id!; // Asumiendo que user.id ya es int
+      final int? carId = int.tryParse(car.id.toString());
+
+      if (carId != null) {
+        final success = await authService.createAssignment(userId: userId, carId: carId);
+
+        if (success) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool("vehiculo_asignado", true);
+          
+          setState(() {
+            vehiculoAsignado = true;
+          });
+          
+          // Actualizar visualmente el carro seleccionado en el Cubit
+          if (mounted) context.read<HomeCubit>().changeCar(car);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Vehículo asignado correctamente")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error al asignar el vehículo")),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error: ID de vehículo no válido")),
+        );
+      }
+    }
   }
 
   /// 🔹 BOTÓN BLOQUEABLE
