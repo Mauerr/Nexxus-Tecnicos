@@ -3,11 +3,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_screen.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/kilometraje/kilometraje_cubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/kilometraje/kilometraje_state.dart';
+import 'package:nexxus/src/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class EvidenciaKilometrajeScreen extends StatelessWidget {
+class EvidenciaKilometrajeScreen extends StatefulWidget {
   const EvidenciaKilometrajeScreen({super.key});
+
+  @override
+  State<EvidenciaKilometrajeScreen> createState() => _EvidenciaKilometrajeScreenState();
+}
+
+class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen> {
+  final TextEditingController _kmController = TextEditingController();
+  bool _isSending = false;
+  bool _vehiculoAsignado = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAsignacion();
+  }
+
+  Future<void> _checkAsignacion() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _vehiculoAsignado = prefs.getBool("vehiculo_asignado") ?? false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _kmController.dispose();
+    super.dispose();
+  }
 
   Future<void> _guardarValidacion() async {
     final prefs = await SharedPreferences.getInstance();
@@ -60,35 +89,37 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "KM Inicial:",
+                                style: TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: TextField(
+                                controller: _kmController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  hintText: "Ingrese kilometraje",
+                                  border: InputBorder.none,
+                                ),
+                                onChanged: (_) => setState(() {}),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+
                             _buildEvidenciaButton(
                               context,
                               "KM inicio del día",
                               state.fotoKmInicio != null,
                               () => context.read<EvidenciaKilometrajeCubit>().tomarFotoKmInicio(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "KM fin del día",
-                              state.fotoKmFin != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoKmFin(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "Asientos delanteros",
-                              state.fotoAsientosDel != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoAsientosDel(),
-                            ),
-                            const SizedBox(height: 20),
-
-                            _buildEvidenciaButton(
-                              context,
-                              "Asientos traseros",
-                              state.fotoAsientosTras != null,
-                              () => context.read<EvidenciaKilometrajeCubit>().tomarFotoAsientosTras(),
                             ),
 
                             const SizedBox(height: 40),
@@ -97,27 +128,71 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: ElevatedButton(
-                                onPressed: state.completado
-                                    ? () async {
-                                        await _guardarValidacion();
-
+                                onPressed: !_vehiculoAsignado
+                                    ? () {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Evidencias validadas correctamente"),
-                                          ),
-                                        );
-
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => const HomeScreen(),
-                                          ),
-                                          (route) => false,
+                                          const SnackBar(content: Text("No tienes un vehículo asignado.")),
                                         );
                                       }
-                                    : null,
+                                    : (state.fotoKmInicio != null && _kmController.text.isNotEmpty && !_isSending)
+                                        ? () async {
+                                            setState(() => _isSending = true);
+
+                                            final authService = AuthService();
+                                            final user = await authService.getLoggedUser();
+                                            final km = int.tryParse(_kmController.text) ?? 0;
+
+                                            print("🔍 DEBUG: Iniciando proceso de validación...");
+                                            print("   -> Usuario ID: ${user?.id}");
+                                            print("   -> KM Ingresado: $km");
+                                            print("   -> Foto presente: ${state.fotoKmInicio != null}");
+
+                                            if (user != null && user.id != null) {
+                                              print("🚀 DEBUG: Enviando datos al backend...");
+                                              final success = await authService.updateEvidenceKm(
+                                                userId: user.id!.toString(),
+                                                km: km,
+                                                lat: 19.4325, // Coordenadas fijas por ahora
+                                                lng: -99.1331,
+                                                image: state.fotoKmInicio,
+                                              );
+
+                                              print("📡 DEBUG: Resultado del servicio: $success");
+
+                                              if (success) {
+                                                print("✅ DEBUG: Éxito. Guardando localmente y saliendo.");
+                                                await _guardarValidacion();
+                                                if (!mounted) return;
+                                                
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text("Evidencias enviadas correctamente")),
+                                                );
+
+                                                Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                                  (route) => false,
+                                                );
+                                              } else {
+                                                print("❌ DEBUG: Falló el envío. Revisa el código de estado en AuthService.");
+                                                if (!mounted) return;
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text("Error al enviar evidencias")),
+                                                );
+                                              }
+                                            } else {
+                                              print("⚠️ DEBUG: Usuario no válido o ID nulo.");
+                                              if (!mounted) return;
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text("Error: Usuario no identificado")),
+                                              );
+                                            }
+                                            
+                                            if (mounted) setState(() => _isSending = false);
+                                          }
+                                        : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: state.completado
+                                  backgroundColor: (state.fotoKmInicio != null && _kmController.text.isNotEmpty && _vehiculoAsignado)
                                       ? Colors.greenAccent
                                       : Colors.grey.shade400,
                                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -125,13 +200,17 @@ class EvidenciaKilometrajeScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
-                                child: Text(
-                                  "Validar",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: state.completado ? Colors.black : Colors.grey.shade700,
-                                  ),
-                                ),
+                                child: _isSending
+                                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                                    : Text(
+                                        "Validar",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: (state.fotoKmInicio != null && _kmController.text.isNotEmpty && _vehiculoAsignado)
+                                              ? Colors.black
+                                              : Colors.grey.shade700,
+                                        ),
+                                      ),
                               ),
                             ),
                           ],

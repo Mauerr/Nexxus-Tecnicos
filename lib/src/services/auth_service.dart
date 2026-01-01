@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/car_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -101,6 +102,51 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// ACTUALIZAR EVIDENCIA KILOMETRAJE
+  /// ----------------------------
+  Future<bool> updateEvidenceKm({
+    required String userId,
+    required int km,
+    required double lat,
+    required double lng,
+    File? image,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/evidences/update/$userId");
+      
+      // Ajuste: Enviar como JSON Raw (application/json) para coincidir con Postman
+      final headers = await authHeaders();
+
+      final body = {
+        "km_inicial": km,
+        "start_lat": lat,
+        "start_lng": lng,
+      };
+
+      print("🚀 Sending evidence update (JSON) to: $url");
+      print("   Body: $body");
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      print("✅ Response Status Code: ${response.statusCode}");
+      print("📦 Response Body: ${response.body}");
+
+      if (response.statusCode >= 400) {
+        print("🛑 ERROR EN PETICIÓN: Código ${response.statusCode}");
+      }
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ UPDATE EVIDENCE ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// ASIGNAR VEHÍCULO (Assignment)
   /// ----------------------------
   Future<bool> createAssignment({required int userId, required int carId}) async {
@@ -123,11 +169,7 @@ class AuthService {
         body: jsonEncode(body),
       );
 
-      print("✅ Response Status: ${res.statusCode}");
-      print("📦 Response Body: ${res.body}");
-
       if (res.statusCode == 200 || res.statusCode == 201) {
-        print("   -> Assignment Created Successfully!");
         return true;
       }
       print("❌ ERROR ASIGNACIÓN (${res.statusCode}): ${res.body}");
@@ -201,9 +243,7 @@ class AuthService {
   /// ----------------------------
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
-    // Solo removemos credenciales, mantenemos configuraciones persistentes como asignación de vehículo
-    await prefs.remove("token");
-    await prefs.remove("user");
+    await prefs.clear();
   }
 
   /// ----------------------------

@@ -369,33 +369,27 @@ class _HomeScreenState extends State<HomeScreen> {
     if (user != null && user.id != null && car.id != null) {
       // Intentamos parsear los IDs a int como requiere el backend
       final int userId = user.id!; // Asumiendo que user.id ya es int
-      final int? carId = int.tryParse(car.id.toString());
+      final int carId = car.id;
 
-      if (carId != null) {
-        final success = await authService.createAssignment(userId: userId, carId: carId);
+      final success = await authService.createAssignment(userId: userId, carId: carId);
 
-        if (success) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setBool("vehiculo_asignado", true);
-          
-          setState(() {
-            vehiculoAsignado = true;
-          });
-          
-          // Actualizar visualmente el carro seleccionado en el Cubit
-          if (mounted) context.read<HomeCubit>().changeCar(car);
+      if (success) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool("vehiculo_asignado", true);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Vehículo asignado correctamente")),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Error al asignar el vehículo")),
-          );
-        }
+        setState(() {
+          vehiculoAsignado = true;
+        });
+
+        // Actualizar visualmente el carro seleccionado en el Cubit
+        if (mounted) context.read<HomeCubit>().changeCar(car);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Vehículo asignado correctamente")),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error: ID de vehículo no válido")),
+          const SnackBar(content: Text("Error al asignar el vehículo")),
         );
       }
     }
