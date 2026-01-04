@@ -181,6 +181,153 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// CREAR MANTENIMIENTO
+  /// ----------------------------
+  Future<bool> createMaintenance({
+    required int idCars,
+    required String typeMaintenance,
+    required int kilometros,
+    required String mecanico,
+    required String notes,
+    required bool isMaintenance,
+    String? imagePath,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/maintenance/create");
+      final request = http.MultipartRequest('POST', url);
+
+      // 1. Obtener headers y remover Content-Type para que Multipart funcione
+      final headers = await authHeaders();
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      // 2. Agregar campos de texto
+      request.fields['id_cars'] = idCars.toString();
+      request.fields['type_maintenance'] = typeMaintenance;
+      request.fields['kilometros'] = kilometros.toString();
+      request.fields['mecanica'] = mecanico;
+      request.fields['notes'] = notes;
+      request.fields['is_maintenance'] = isMaintenance ? '1' : '0';
+
+      // 3. Agregar imagen si existe
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final file = await http.MultipartFile.fromPath('file', imagePath);
+        request.files.add(file);
+      }
+
+      print("🚀 Creating Maintenance (Multipart)...");
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print("✅ Response Status: ${response.statusCode}");
+      print("📦 Response Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ CREATE MAINTENANCE ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
+  /// OBTENER MANTENIMIENTOS POR CARRO (Endpoint 3)
+  /// ----------------------------
+  Future<List<dynamic>> getMaintenancesByCar(int carId) async {
+    try {
+      final url = Uri.parse("$baseUrl/maintenance/car/$carId");
+      final headers = await authHeaders();
+      
+      print("🚀 Getting Maintenances for Car ID: $carId");
+
+      final res = await http.get(url, headers: headers);
+      
+      print("✅ Response Status: ${res.statusCode}");
+
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body); // Retorna lista de mantenimientos
+      }
+      return [];
+    } catch (e) {
+      print("❌ GET MAINTENANCE ERROR: $e");
+      return [];
+    }
+  }
+
+  /// ----------------------------
+  /// ACTUALIZAR DATOS (Endpoint 1: Notas y KM)
+  /// ----------------------------
+  Future<bool> updateMaintenanceData({
+    required int id,
+    required int idCars,
+    required String typeMaintenance,
+    required int kilometros,
+    required String mecanica,
+    required String notes,
+    required bool isMaintenance,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/maintenance/update/$id");
+      final headers = await authHeaders();
+
+      final body = {
+        "notes": notes,
+        "kilometros": kilometros,
+      };
+
+      print("🚀 Updating Maintenance Data (PUT)...");
+      print("   URL: $url");
+      print("   Body: $body");
+
+      final response = await http.put(url, headers: headers, body: jsonEncode(body));
+      
+      print("✅ Response Status: ${response.statusCode}");
+      print("📦 Response Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ UPDATE DATA ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
+  /// ACTUALIZAR IMAGEN Y NOTAS (Endpoint 2)
+  /// ----------------------------
+  Future<bool> updateMaintenanceImage({
+    required int id,
+    required String notes,
+    required String imagePath,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/maintenance/update-image/$id"); // Ajusta ruta
+      final request = http.MultipartRequest('PUT', url);
+
+      final headers = await authHeaders();
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      request.fields['notes'] = notes; // El endpoint pide notas también
+      
+      final file = await http.MultipartFile.fromPath('file', imagePath);
+      request.files.add(file);
+
+      print("🚀 Updating Maintenance Image (Multipart PUT)...");
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print("✅ Response Status: ${response.statusCode}");
+      print("📦 Response Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ UPDATE IMAGE ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// GUARDAR SESIÓN
   /// ----------------------------
   Future<void> _saveSession(LoginResponse response) async {

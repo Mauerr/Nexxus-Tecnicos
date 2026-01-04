@@ -1,8 +1,8 @@
 export 'package:nexxus/src/presentation/pages/auth/administrador/aprovicionamiento_cubit.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/homeAdmin.dart';
-export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimiento_cubir.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimiento/mantenimiento_cubit.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/aprovisionamientoAdmin.dart';
-export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimientoAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimiento/mantenimientoAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
 export 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
