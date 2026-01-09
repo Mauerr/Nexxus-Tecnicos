@@ -102,6 +102,62 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// ACTUALIZAR VEHÍCULO
+  /// ----------------------------
+  Future<bool> updateCar(int id, Map<String, dynamic> carData) async {
+    try {
+      final url = Uri.parse("$baseUrl/cars/update/$id");
+      final headers = await authHeaders();
+
+      print("🚀 Updating Car ID: $id");
+      print("   Body: $carData");
+
+      final res = await http.patch(
+        url,
+        headers: headers,
+        body: jsonEncode(carData),
+      );
+
+      print("✅ Response Status: ${res.statusCode}");
+      print("📦 Response Body: ${res.body}");
+
+      if (res.statusCode != 200 && res.statusCode != 201) {
+        print("⚠️ ERROR UPDATE: Código ${res.statusCode} - ${res.body}");
+      }
+
+      return res.statusCode == 200 || res.statusCode == 201;
+    } catch (e) {
+      print("❌ UPDATE CAR ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
+  /// ELIMINAR VEHÍCULO
+  /// ----------------------------
+  Future<bool> deleteCar(int id) async {
+    try {
+      final url = Uri.parse("$baseUrl/cars/delete_car/$id");
+      final headers = await authHeaders();
+
+      print("🚀 Deleting Car ID: $id");
+
+      final res = await http.delete(url, headers: headers);
+
+      print("✅ Response Status: ${res.statusCode}");
+      
+      if (res.statusCode != 200 && res.statusCode != 201 && res.statusCode != 204) {
+        print("⚠️ ERROR DELETE: Código ${res.statusCode} - ${res.body}");
+      }
+
+      return res.statusCode == 200 || res.statusCode == 201 || res.statusCode == 204;
+    } catch (e) {
+      print("❌ DELETE CAR ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// ACTUALIZAR EVIDENCIA KILOMETRAJE
   /// ----------------------------
   Future<bool> updateEvidenceKm({

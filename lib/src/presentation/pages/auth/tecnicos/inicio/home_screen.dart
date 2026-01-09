@@ -369,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (user != null && user.id != null && car.id != null) {
       // Intentamos parsear los IDs a int como requiere el backend
       final int userId = user.id!; // Asumiendo que user.id ya es int
-      final int carId = car.id;
+      final int carId = car.id!;
 
       final success = await authService.createAssignment(userId: userId, carId: carId);
 

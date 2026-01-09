@@ -15,4 +15,3 @@ export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciahojala
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciakilometricaadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciasmecanicasadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/registro%20vehiculo/registrovehiculo.dart';
-export 'package:nexxus/src/presentation/pages/auth/administrador/editar%20vehiculo/editarvehiculo.dart';
