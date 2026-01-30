@@ -566,7 +566,8 @@ class AuthService {
   /// ----------------------------
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove("token");
+    await prefs.remove("user");
   }
 
   /// ----------------------------

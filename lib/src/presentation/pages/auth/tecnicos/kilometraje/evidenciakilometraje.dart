@@ -141,25 +141,45 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                             final authService = AuthService();
                                             final user = await authService.getLoggedUser();
                                             final km = int.tryParse(_kmController.text) ?? 0;
+                                            
+                                            // 🔹 Obtener ID de evidencia para subir la foto
+                                            final prefs = await SharedPreferences.getInstance();
+                                            final int? idEvidence = prefs.getInt('current_evidence_id');
 
                                             print("🔍 DEBUG: Iniciando proceso de validación...");
                                             print("   -> Usuario ID: ${user?.id}");
                                             print("   -> KM Ingresado: $km");
                                             print("   -> Foto presente: ${state.fotoKmInicio != null}");
+                                            print("   -> Evidence ID (SharedPreferences): $idEvidence");
 
-                                            if (user != null && user.id != null) {
+                                            if (user != null && user.id != null && idEvidence != null) {
                                               print("🚀 DEBUG: Enviando datos al backend...");
-                                              final success = await authService.updateEvidenceKm(
+                                              
+                                              // 1. Actualizar datos numéricos (KM)
+                                              print("⏳ DEBUG: Ejecutando updateEvidenceKm...");
+                                              final successKm = await authService.updateEvidenceKm(
                                                 userId: user.id!.toString(),
                                                 km: km,
                                                 lat: 19.4325, // Coordenadas fijas por ahora
                                                 lng: -99.1331,
                                                 image: state.fotoKmInicio,
                                               );
+                                              print("✅ DEBUG: updateEvidenceKm finalizado. Resultado: $successKm");
 
-                                              print("📡 DEBUG: Resultado del servicio: $success");
+                                              // 2. Subir imagen (Endpoint evidences-img/create)
+                                              print("⏳ DEBUG: Ejecutando uploadEvidencePhoto...");
+                                              final successImg = await authService.uploadEvidencePhoto(
+                                                idEvidence: idEvidence,
+                                                typeEvidence: "kilometraje",
+                                                typeImage: "km_inicial",
+                                                typeStatus: "start",
+                                                file: state.fotoKmInicio!,
+                                              );
+                                              print("✅ DEBUG: uploadEvidencePhoto finalizado. Resultado: $successImg");
 
-                                              if (success) {
+                                              print("📡 DEBUG: Resultado KM: $successKm | IMG: $successImg");
+
+                                              if (successKm && successImg) {
                                                 print("✅ DEBUG: Éxito. Guardando localmente y saliendo.");
                                                 await _guardarValidacion();
                                                 if (!mounted) return;
@@ -174,17 +194,22 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                                   (route) => false,
                                                 );
                                               } else {
-                                                print("❌ DEBUG: Falló el envío. Revisa el código de estado en AuthService.");
+                                                print("❌ DEBUG: Falló el envío. Detalles:");
+                                                print("   -> successKm: $successKm");
+                                                print("   -> successImg: $successImg");
                                                 if (!mounted) return;
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(content: Text("Error al enviar evidencias")),
                                                 );
                                               }
                                             } else {
-                                              print("⚠️ DEBUG: Usuario no válido o ID nulo.");
+                                              print("⚠️ DEBUG: Datos faltantes para el envío.");
+                                              print("   -> User: $user");
+                                              print("   -> User ID: ${user?.id}");
+                                              print("   -> Evidence ID: $idEvidence");
                                               if (!mounted) return;
                                               ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text("Error: Usuario no identificado")),
+                                                const SnackBar(content: Text("Error: Usuario o Asignación no identificados")),
                                               );
                                             }
                                             

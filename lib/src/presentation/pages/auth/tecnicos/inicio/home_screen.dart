@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool evidenciaHojalateriaOk = false;
   bool evidenciaTapiceriaOk = false;
   bool vehiculoAsignado = false;
+  int? assignedCarId;
 
   /*final List<String> unidades = [
     "001 Volkswagen",
@@ -60,6 +61,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> cargarEstatusEvidencias() async {
     final prefs = await SharedPreferences.getInstance();
 
+    // 🔹 VERIFICACIÓN DE USUARIO: Limpiar datos si es otro usuario
+    final user = await AuthService().getLoggedUser();
+    final int? storedUserId = prefs.getInt("assigned_user_id");
+
+    if (user != null && storedUserId != null && user.id != storedUserId) {
+      print("⚠️ Usuario diferente detectado. Limpiando asignación anterior.");
+      await prefs.remove("vehiculo_asignado");
+      await prefs.remove("current_evidence_id");
+      await prefs.remove("assigned_car_id");
+      await prefs.remove("assigned_user_id");
+      await prefs.remove("mecanica_ok");
+      await prefs.remove("kilometraje_ok");
+      await prefs.remove("hojalateria_ok");
+      await prefs.remove("tapiceria_ok");
+    }
+
+    // Cargar ID del carro asignado
+    final int? savedCarId = prefs.getInt("assigned_car_id");
+
     // 🔹 CORRECCIÓN: Verificar consistencia de datos
     bool vAsignado = prefs.getBool("vehiculo_asignado") ?? false;
     final int? idEvidence = prefs.getInt('current_evidence_id');
@@ -76,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
       evidenciaTapiceriaOk = prefs.getBool("tapiceria_ok") ?? false;
       vehiculoAsignado = vAsignado;
+      assignedCarId = savedCarId;
     });
   }
 
@@ -83,7 +104,20 @@ class _HomeScreenState extends State<HomeScreen> {
  Widget build(BuildContext context) {
   return BlocProvider(
     create: (_) => HomeCubit(authService: AuthService()),
-    child: Scaffold(
+    child: BlocListener<HomeCubit, HomeState>(
+      listener: (context, state) {
+        // 🔹 RESTAURAR SELECCIÓN: Si hay un carro asignado y la lista cargó, seleccionarlo.
+        if (state is HomeLoaded && vehiculoAsignado && assignedCarId != null && state.selectedCar == null) {
+          try {
+            final restoredCar = state.cars.firstWhere((c) => c.id == assignedCarId);
+            context.read<HomeCubit>().changeCar(restoredCar);
+            print("✅ Vehículo restaurado automáticamente: ${restoredCar.label}");
+          } catch (e) {
+            print("⚠️ No se pudo restaurar el vehículo asignado (ID: $assignedCarId). Puede que no esté en la lista.");
+          }
+        }
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
@@ -240,6 +274,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               await prefs.remove("kilometraje_ok");
                               await prefs.remove("hojalateria_ok");
                               await prefs.remove("tapiceria_ok");
+                              await prefs.remove("vehiculo_asignado");
+                              await prefs.remove("current_evidence_id");
+                              await prefs.remove("assigned_car_id");
+                              await prefs.remove("assigned_user_id");
                               await AuthService().clearSession();
 
                               if (!mounted) return;
@@ -323,10 +361,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
 
-                  await prefs.remove("mecanica_ok");
-                  await prefs.remove("kilometraje_ok");
-                  await prefs.remove("hojalateria_ok");
-                  await prefs.remove("tapiceria_ok");
+                  // 🔹 PERSISTENCIA: No borramos las banderas de evidencia ni la asignación al hacer Logout.
+                  // Solo se borran en "Finalizar" o si entra otro usuario.
+                  // await prefs.remove("mecanica_ok");
+                  // await prefs.remove("kilometraje_ok");
+                  // await prefs.remove("hojalateria_ok");
+                  // await prefs.remove("tapiceria_ok");
 
                   await AuthService().clearSession();
 
@@ -344,6 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       ),
+    ),
     );
   }
 
@@ -389,9 +430,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (success && evidenceId != null) {
         await prefs.setBool("vehiculo_asignado", true);
+        await prefs.setInt("assigned_car_id", carId);
+        await prefs.setInt("assigned_user_id", userId); // Guardar usuario para validar persistencia
 
         setState(() {
           vehiculoAsignado = true;
+          assignedCarId = carId;
         });
 
         // Actualizar visualmente el carro seleccionado en el Cubit
