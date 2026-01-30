@@ -60,12 +60,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> cargarEstatusEvidencias() async {
     final prefs = await SharedPreferences.getInstance();
 
+    // 🔹 CORRECCIÓN: Verificar consistencia de datos
+    bool vAsignado = prefs.getBool("vehiculo_asignado") ?? false;
+    final int? idEvidence = prefs.getInt('current_evidence_id');
+
+    if (vAsignado && idEvidence == null) {
+      print("⚠️ CORRECCIÓN AUTOMÁTICA: Vehículo asignado pero sin ID de evidencia. Reseteando para permitir reasignación.");
+      await prefs.setBool("vehiculo_asignado", false);
+      vAsignado = false;
+    }
+
     setState(() {
       evidenciaMecanicaOk = prefs.getBool("mecanica_ok") ?? false;
       evidenciaKilometrajeOk = prefs.getBool("kilometraje_ok") ?? false;
       evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
       evidenciaTapiceriaOk = prefs.getBool("tapiceria_ok") ?? false;
-      vehiculoAsignado = prefs.getBool("vehiculo_asignado") ?? false;
+      vehiculoAsignado = vAsignado;
     });
   }
 
@@ -373,8 +383,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final success = await authService.createAssignment(userId: userId, carId: carId);
 
-      if (success) {
-        final prefs = await SharedPreferences.getInstance();
+      // 🔹 Verificar si realmente obtuvimos el ID de la evidencia
+      final prefs = await SharedPreferences.getInstance();
+      final int? evidenceId = prefs.getInt('current_evidence_id');
+
+      if (success && evidenceId != null) {
         await prefs.setBool("vehiculo_asignado", true);
 
         setState(() {
@@ -389,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al asignar el vehículo")),
+          const SnackBar(content: Text("Error: El servidor no devolvió el ID de asignación.")),
         );
       }
     }

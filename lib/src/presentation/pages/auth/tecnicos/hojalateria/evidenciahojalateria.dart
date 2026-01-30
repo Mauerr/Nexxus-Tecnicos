@@ -1,15 +1,57 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/hojalateria/imageninstructiva.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/hojalateria/imageninstructivaizq.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/hojalateria/imageninstructivader.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/hojalateria/imageninstructivareverso.dart';
+import 'package:nexxus/src/services/auth_service.dart';
 
 import 'evidenciaHojalateria_cubit.dart';
 import 'evidenciaHojalateria_state.dart';
 
-class EvidenciaHojalateriaScreen extends StatelessWidget {
+class EvidenciaHojalateriaScreen extends StatefulWidget {
   const EvidenciaHojalateriaScreen({super.key});
+
+  @override
+  State<EvidenciaHojalateriaScreen> createState() => _EvidenciaHojalateriaScreenState();
+}
+
+class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen> {
+  bool _isSending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _verificarAsignacion();
+  }
+
+  Future<void> _verificarAsignacion() async {
+    final prefs = await SharedPreferences.getInstance();
+    final int? idEvidence = prefs.getInt('current_evidence_id');
+    
+    if (idEvidence == null) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text("Error de Asignación"),
+          content: const Text("No se encontró el identificador de la asignación. Por favor regrese al inicio y vuelva a seleccionar la unidad."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text("Entendido"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +140,85 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                                 SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.5,
                                   child: ElevatedButton(
-                                    onPressed: state.completado
+                                    onPressed: (state.completado && !_isSending)
                                         ? () async {
+                                            setState(() => _isSending = true);
+                                            final authService = AuthService();
+                                            
+                                            // 🔹 Obtener ID dinámico
+                                            final prefs = await SharedPreferences.getInstance();
+                                            print("🔍 DEBUG: Buscando 'current_evidence_id' en SharedPreferences...");
+                                            final int? idEvidence = prefs.getInt('current_evidence_id');
+                                            print("🔍 DEBUG: ID encontrado: $idEvidence");
+
+                                            if (idEvidence == null) {
+                                              print("❌ ERROR: idEvidence es NULL. El usuario debe reasignar la unidad.");
+                                              if (!mounted) return;
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text("Error: No se encontró la asignación. Por favor reasigne la unidad.")),
+                                              );
+                                              setState(() => _isSending = false);
+                                              return;
+                                            }
+
+                                            // 1. Subir Frente
+                                            if (state.fotoFrente != null) {
+                                              final success = await authService.uploadEvidencePhoto(
+                                                idEvidence: idEvidence,
+                                                typeEvidence: "hojalateria",
+                                                typeImage: "frente",
+                                                typeStatus: "start",
+                                                file: state.fotoFrente!,
+                                              );
+                                              print("📸 Frente upload success: $success");
+                                              if (!success) print("❌ ERROR: Falló la subida de la foto Frente");
+                                            }
+
+                                            // 2. Subir Izquierdo
+                                            if (state.fotoIzquierdo != null) {
+                                              final success = await authService.uploadEvidencePhoto(
+                                                idEvidence: idEvidence,
+                                                typeEvidence: "hojalateria",
+                                                typeImage: "izq",
+                                                typeStatus: "start",
+                                                file: state.fotoIzquierdo!,
+                                              );
+                                              print("📸 Izquierdo upload success: $success");
+                                              if (!success) print("❌ ERROR: Falló la subida de la foto Izquierdo");
+                                            }
+
+                                            // 3. Subir Derecho
+                                            if (state.fotoDerecho != null) {
+                                              final success = await authService.uploadEvidencePhoto(
+                                                idEvidence: idEvidence,
+                                                typeEvidence: "hojalateria",
+                                                typeImage: "derecho",
+                                                typeStatus: "start",
+                                                file: state.fotoDerecho!,
+                                              );
+                                              print("📸 Derecho upload success: $success");
+                                              if (!success) print("❌ ERROR: Falló la subida de la foto Derecho");
+                                            }
+
+                                            // 4. Subir Reverso
+                                            if (state.fotoReverso != null) {
+                                              final success = await authService.uploadEvidencePhoto(
+                                                idEvidence: idEvidence,
+                                                typeEvidence: "hojalateria",
+                                                typeImage: "trasera",
+                                                typeStatus: "start",
+                                                file: state.fotoReverso!,
+                                              );
+                                              print("📸 Reverso upload success: $success");
+                                              if (!success) print("❌ ERROR: Falló la subida de la foto Reverso");
+                                            }
+
                                             await context
                                                 .read<EvidenciaHojalateriaCubit>()
                                                 .guardarValidacion();
 
+                                            if (!mounted) return;
+                                            setState(() => _isSending = false);
                                             Navigator.pop(context);
                                           }
                                         : null,
@@ -116,13 +231,19 @@ class EvidenciaHojalateriaScreen extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                     ),
-                                    child: const Text(
-                                      "Validar",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.black,
-                                      ),
-                                    ),
+                                    child: _isSending
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                          )
+                                        : const Text(
+                                            "Validar",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ],

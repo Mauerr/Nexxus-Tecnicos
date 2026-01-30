@@ -5,7 +5,7 @@ export 'package:nexxus/src/presentation/pages/auth/administrador/aprovisionamien
 export 'package:nexxus/src/presentation/pages/auth/administrador/mantenimiento/mantenimientoAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidacionvehiculo.dart';
 export 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
-export 'package:nexxus/src/presentation/pages/auth/administrador/revisionevidencia.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/revision%20de%20evidencia/revisionevidencia.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutasAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';

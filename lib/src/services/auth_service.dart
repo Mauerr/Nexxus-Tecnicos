@@ -158,6 +158,50 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// SUBIR IMAGEN EVIDENCIA (POST)
+  /// ----------------------------
+  Future<bool> uploadEvidencePhoto({
+    required int idEvidence,
+    required String typeEvidence,
+    required String typeImage,
+    required String typeStatus,
+    required File file,
+  }) async {
+    try {
+      final url = Uri.parse("$baseUrl/evidences-img/create");
+      final request = http.MultipartRequest('POST', url);
+
+      // Headers
+      final headers = await authHeaders();
+      headers.remove('Content-Type'); // Multipart se encarga del boundary
+      request.headers.addAll(headers);
+
+      // Fields
+      request.fields['id_evidence'] = idEvidence.toString();
+      request.fields['type_evidence'] = typeEvidence;
+      request.fields['type_image'] = typeImage;
+      request.fields['type_status'] = typeStatus;
+
+      // File
+      final multipartFile = await http.MultipartFile.fromPath('file', file.path);
+      request.files.add(multipartFile);
+
+      print("🚀 Uploading Evidence ($typeImage)...");
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      print("✅ Response Status: ${response.statusCode}");
+      print("📦 Response Body: ${response.body}");
+
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ UPLOAD EVIDENCE PHOTO ERROR: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// ACTUALIZAR EVIDENCIA KILOMETRAJE
   /// ----------------------------
   Future<bool> updateEvidenceKm({
@@ -205,7 +249,7 @@ class AuthService {
   /// ----------------------------
   /// ASIGNAR VEHÍCULO (Assignment)
   /// ----------------------------
-  Future<bool> createAssignment({required int userId, required int carId}) async {
+   Future<bool> createAssignment({required int userId, required int carId}) async {
     try {
       final url = Uri.parse("$baseUrl/assignment/create-assignment-evidence");
       final headers = await authHeaders();
@@ -225,7 +269,44 @@ class AuthService {
         body: jsonEncode(body),
       );
 
+      print("✅ Assignment Response Status: ${res.statusCode}");
+      print("📦 Assignment Response Body: ${res.body}");
+
       if (res.statusCode == 200 || res.statusCode == 201) {
+        // 🔹 Guardar el ID de la evidencia creada para usarlo en las fotos
+        try {
+          final data = jsonDecode(res.body);
+          int? extractedId;
+          
+          print("🔍 Analizando respuesta para ID. Keys: ${data is Map ? data.keys.toList() : 'No es Map'}");
+
+          // Helper para parsear ID (maneja int y String)
+          int? parseId(dynamic value) {
+            if (value is int) return value;
+            if (value is String) return int.tryParse(value);
+            return null;
+          }
+
+          // Búsqueda robusta del ID
+          if (data is Map) {
+            // 1. Buscar en raíz
+            extractedId = parseId(data['id']) ?? parseId(data['id_evidence']) ?? parseId(data['evidence_id']);
+            
+            // 2. Buscar en 'data' o 'evidence'
+            if (extractedId == null && data['data'] is Map) extractedId = parseId(data['data']['id']) ?? parseId(data['data']['id_evidence']);
+            if (extractedId == null && data['evidence'] is Map) extractedId = parseId(data['evidence']['id']) ?? parseId(data['evidence']['id_evidence']);
+          }
+
+          if (extractedId != null) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setInt('current_evidence_id', extractedId);
+            print("✅ Evidence ID guardado localmente: $extractedId");
+          } else {
+            print("⚠️ No se encontró el ID en la respuesta del servidor.");
+          }
+        } catch (e) {
+          print("⚠️ No se pudo guardar el ID de la evidencia: $e");
+        }
         return true;
       }
       print("❌ ERROR ASIGNACIÓN (${res.statusCode}): ${res.body}");
@@ -380,6 +461,45 @@ class AuthService {
     } catch (e) {
       print("❌ UPDATE IMAGE ERROR: $e");
       return false;
+    }
+  }
+
+  /// ----------------------------
+  /// OBTENER ÚLTIMA EVIDENCIA POR CARRO
+  /// ----------------------------
+  Future<Map<String, dynamic>?> getLatestEvidenceByCar(int carId) async {
+    try {
+      // Asumimos endpoint estándar para obtener la última evidencia
+      final url = Uri.parse("$baseUrl/evidences/car/$carId/latest");
+      final headers = await authHeaders();
+      final res = await http.get(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body);
+      }
+      return null;
+    } catch (e) {
+      print("❌ GET LATEST EVIDENCE ERROR: $e");
+      return null;
+    }
+  }
+
+  /// ----------------------------
+  /// OBTENER IMÁGENES DE EVIDENCIA
+  /// ----------------------------
+  Future<List<dynamic>> getEvidenceImages(int evidenceId) async {
+    try {
+      final url = Uri.parse("$baseUrl/evidences-img/evidence/$evidenceId");
+      final headers = await authHeaders();
+      final res = await http.get(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        return List<dynamic>.from(jsonDecode(res.body));
+      }
+      return [];
+    } catch (e) {
+      print("❌ GET EVIDENCE IMAGES ERROR: $e");
+      return [];
     }
   }
 

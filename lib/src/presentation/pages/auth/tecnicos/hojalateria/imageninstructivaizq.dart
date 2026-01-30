@@ -19,7 +19,7 @@ class ImagenInstructivaIzquierdo extends StatelessWidget {
         body: SafeArea(
           child: Center(
             child: Image.asset(
-              'lib/ssets/imginstructiva.png',
+              'lib/assets/imginstructiva.png',
               width: 300,
               height: 300,
             ),
