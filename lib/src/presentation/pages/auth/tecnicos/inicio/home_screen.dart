@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool evidenciaMecanicaOk = false;
   bool evidenciaKilometrajeOk = false;
+  bool evidenciaKilometrajeFinalOk = false;
   bool evidenciaHojalateriaOk = false;
   bool evidenciaTapiceriaOk = false;
   bool vehiculoAsignado = false;
@@ -60,44 +61,65 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> cargarEstatusEvidencias() async {
     final prefs = await SharedPreferences.getInstance();
-
-    // 🔹 VERIFICACIÓN DE USUARIO: Limpiar datos si es otro usuario
     final user = await AuthService().getLoggedUser();
-    final int? storedUserId = prefs.getInt("assigned_user_id");
 
-    if (user != null && storedUserId != null && user.id != storedUserId) {
-      print("⚠️ Usuario diferente detectado. Limpiando asignación anterior.");
-      await prefs.remove("vehiculo_asignado");
-      await prefs.remove("current_evidence_id");
-      await prefs.remove("assigned_car_id");
-      await prefs.remove("assigned_user_id");
-      await prefs.remove("mecanica_ok");
-      await prefs.remove("kilometraje_ok");
-      await prefs.remove("hojalateria_ok");
-      await prefs.remove("tapiceria_ok");
+    // 1. Validar Usuario y Limpieza de Sesión Anterior
+    final int? storedUserId = prefs.getInt("assigned_user_id");
+    bool vAsignado = prefs.getBool("vehiculo_asignado") ?? false;
+
+    // Si hay vehículo asignado, debe coincidir el usuario. Si no hay usuario guardado o es diferente, limpiar.
+    if (vAsignado) {
+      if (user != null && (storedUserId == null || user.id != storedUserId)) {
+        print("⚠️ Usuario diferente o inconsistente detectado. Limpiando asignación anterior.");
+        await prefs.remove("vehiculo_asignado");
+        await prefs.remove("current_evidence_id");
+        await prefs.remove("assigned_car_id");
+        await prefs.remove("assigned_user_id");
+        await prefs.remove("mecanica_ok");
+        await prefs.remove("kilometraje_ok");
+        await prefs.remove("kilometraje_end_ok");
+        await prefs.remove("hojalateria_ok");
+        await prefs.remove("tapiceria_ok");
+        vAsignado = false;
+      }
     }
 
-    // Cargar ID del carro asignado
-    final int? savedCarId = prefs.getInt("assigned_car_id");
-
-    // 🔹 CORRECCIÓN: Verificar consistencia de datos
-    bool vAsignado = prefs.getBool("vehiculo_asignado") ?? false;
+    // 2. Validar ID de Evidencia
     final int? idEvidence = prefs.getInt('current_evidence_id');
-
     if (vAsignado && idEvidence == null) {
       print("⚠️ CORRECCIÓN AUTOMÁTICA: Vehículo asignado pero sin ID de evidencia. Reseteando para permitir reasignación.");
       await prefs.setBool("vehiculo_asignado", false);
       vAsignado = false;
     }
 
+    // 3. Si no hay vehículo asignado, asegurar limpieza de banderas
+    if (!vAsignado) {
+      await prefs.remove("mecanica_ok");
+      await prefs.remove("kilometraje_ok");
+      await prefs.remove("kilometraje_end_ok");
+      await prefs.remove("hojalateria_ok");
+      await prefs.remove("tapiceria_ok");
+    }
+
+    // 4. Leer estatus actualizados
+    final bool mecOk = prefs.getBool("mecanica_ok") ?? false;
+    final bool kmOk = prefs.getBool("kilometraje_ok") ?? false;
+    final bool kmFinalOk = prefs.getBool("kilometraje_end_ok") ?? false;
+    final bool hojOk = prefs.getBool("hojalateria_ok") ?? false;
+    final bool tapOk = prefs.getBool("tapiceria_ok") ?? false;
+    final int? savedCarId = prefs.getInt("assigned_car_id");
+
     setState(() {
-      evidenciaMecanicaOk = prefs.getBool("mecanica_ok") ?? false;
-      evidenciaKilometrajeOk = prefs.getBool("kilometraje_ok") ?? false;
-      evidenciaHojalateriaOk = prefs.getBool("hojalateria_ok") ?? false;
-      evidenciaTapiceriaOk = prefs.getBool("tapiceria_ok") ?? false;
+      evidenciaMecanicaOk = mecOk;
+      evidenciaKilometrajeOk = kmOk;
+      evidenciaKilometrajeFinalOk = kmFinalOk;
+      evidenciaHojalateriaOk = hojOk;
+      evidenciaTapiceriaOk = tapOk;
       vehiculoAsignado = vAsignado;
       assignedCarId = savedCarId;
     });
+
+    print("📊 ESTATUS HOME: Asignado=$vAsignado | Mec=$mecOk | Km=$kmOk | KmFinal=$kmFinalOk | Hoj=$hojOk | Tap=$tapOk");
   }
 
   @override
@@ -272,6 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               final prefs = await SharedPreferences.getInstance();
                               await prefs.remove("mecanica_ok");
                               await prefs.remove("kilometraje_ok");
+                              await prefs.remove("kilometraje_end_ok");
                               await prefs.remove("hojalateria_ok");
                               await prefs.remove("tapiceria_ok");
                               await prefs.remove("vehiculo_asignado");
@@ -347,6 +370,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     "Evidencias Tapicería",
                     const EvidenciaTapiceriaScreen(),
                     evidenciaTapiceriaOk,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// 🔹 KILOMETRAJE FINAL
+                  botonMenuBloqueable(
+                    context,
+                    "Evidencias Kilometraje Final",
+                    BlocProvider(
+                      create: (_) => EvidenciaKilometrajeCubit(),
+                      child: const EvidenciaKilometrajeScreen(isEndDay: true),
+                    ),
+                    evidenciaKilometrajeFinalOk,
                   ),
                 ],
               ),

@@ -1,19 +1,128 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexxus/src/presentation/pages/auth/administrador/revision%20de%20evidencia/revision_evidencia_cubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/administrador/revision%20de%20evidencia/revision_evidencia_state.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/car_model.dart';
 import 'package:nexxus/src/services/auth_service.dart';
 import '../barrilExportPath.dart'; // Ajusta esta ruta si es necesario (ej: ../../barrilExportPath.dart)
+import 'package:shared_preferences/shared_preferences.dart';
 
 
-class RevisionEvidenciaAdmin extends StatelessWidget {
+class RevisionEvidenciaAdmin extends StatefulWidget {
   const RevisionEvidenciaAdmin({super.key});
 
   @override
+  State<RevisionEvidenciaAdmin> createState() => _RevisionEvidenciaAdminState();
+}
+
+class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
+  late RevisionEvidenciaCubit _cubit;
+  List<dynamic> _localImages = [];
+  bool _isLoadingLocal = false;
+  String _formattedDate = "Sin fecha";
+  String _assignedUser = "Sin asignar";
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = RevisionEvidenciaCubit(AuthService())..init();
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  Future<void> _fetchEvidence(int carId) async {
+    setState(() {
+      _isLoadingLocal = true;
+      _formattedDate = "Sin fecha";
+      _assignedUser = "Sin asignar";
+    });
+    print("🔵 [RevisionEvidencia] Iniciando petición para carId: $carId");
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      final url = Uri.parse('http://10.15.14.20:3000/evidences/car/$carId');
+      final headers = {
+        "Content-Type": "application/json",
+        if (token != null) "Authorization": "Bearer $token",
+      };
+      final response = await http.get(url, headers: headers);
+
+      print("🔵 [RevisionEvidencia] Respuesta HTTP: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        final dynamic decoded = json.decode(response.body);
+        print("🔵 [RevisionEvidencia] Tipo de dato recibido: ${decoded.runtimeType}");
+
+        if (decoded is List) {
+          final List<dynamic> data = decoded;
+          print("🔵 [RevisionEvidencia] Cantidad de asignaciones: ${data.length}");
+          
+          // Obtener la fecha de la última evidencia (último elemento de la lista)
+          String newDate = "Sin fecha";
+          String newUser = "Sin asignar";
+          if (data.isNotEmpty) {
+            try {
+              final lastItem = data.last;
+              // Extraemos la fecha de id_assignment -> start_date como se solicitó
+              final String? rawDate = lastItem['id_assignment']?['start_date'];
+              
+              if (rawDate != null) {
+                final DateTime dt = DateTime.parse(rawDate).toLocal();
+                final String day = dt.day.toString().padLeft(2, '0');
+                final String month = dt.month.toString().padLeft(2, '0');
+                final String year = dt.year.toString();
+                final String hour = dt.hour.toString().padLeft(2, '0');
+                final String minute = dt.minute.toString().padLeft(2, '0');
+                newDate = "$day-$month-$year - $hour:$minute";
+              }
+
+              // Extraer nombre del usuario
+              final userObj = lastItem['id_assignment']?['id_user'];
+              if (userObj != null) {
+                final String name = userObj['name'] ?? "";
+                newUser = name;
+              }
+            } catch (e) {
+              print("❌ [RevisionEvidencia] Error parseando fecha: $e");
+            }
+          }
+
+          // Flatten images from all assignments safely
+          final List<dynamic> allImages = data.expand((e) => ((e['images'] as List?) ?? [])).toList();
+          
+          print("✅ [RevisionEvidencia] Total de imágenes extraídas: ${allImages.length}");
+          setState(() {
+            _localImages = allImages;
+            _formattedDate = newDate;
+            _assignedUser = newUser;
+          });
+        } else {
+          print("❌ [RevisionEvidencia] El cuerpo de la respuesta no es una lista.");
+          setState(() => _localImages = []);
+        }
+      } else {
+        print("❌ [RevisionEvidencia] Error en servidor: ${response.body}");
+        setState(() => _localImages = []);
+      }
+    } catch (e) {
+      print("❌ [RevisionEvidencia] Excepción al obtener evidencia: $e");
+      setState(() => _localImages = []);
+    } finally {
+      setState(() => _isLoadingLocal = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => RevisionEvidenciaCubit(AuthService())..init(),
+    return BlocProvider.value(
+      value: _cubit,
       child: Scaffold(
         body: SafeArea(
           child: Stack(
@@ -60,9 +169,8 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
 
                   if (state is RevisionEvidenciaLoaded) {
                     // Extraer datos para mostrar
-                    final date = state.evidenceData?['created_at'] ?? "Sin fecha";
-                    // Ajustar según la estructura real de tu JSON (ej. user.name o user_name)
-                    final user = state.evidenceData?['user']?['name'] ?? state.evidenceData?['user_name'] ?? "Sin asignar";
+                    final date = _formattedDate;
+                    final user = _assignedUser;
                     
                     return Container(
                       width: double.infinity,
@@ -130,6 +238,9 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
                                   onChanged: (car) {
                                     if (car != null) {
                                       context.read<RevisionEvidenciaCubit>().selectCar(car);
+                                      if (car.id != null) {
+                                        _fetchEvidence(car.id!);
+                                      }
                                     }
                                   },
                                 ),
@@ -139,7 +250,7 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
                             const SizedBox(height: 20),
 
                             // 🔹 Indicador de carga de evidencia
-                            if (state.isLoadingEvidence)
+                            if (state.isLoadingEvidence || _isLoadingLocal)
                               const Center(child: Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: CircularProgressIndicator(color: Colors.white),
@@ -196,13 +307,13 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
                             Center(
                               child: Column(
                                 children: [
-                                  _evidenceButton(context, "Evidencias Mecánicas", state.images, "mecanica"),
+                                  _evidenceButton(context, "Evidencias Mecánicas", _localImages, "mecanica"),
                                   const SizedBox(height: 20),
-                                  _evidenceButton(context, "Evidencias Hojalatería", state.images, "hojalateria"),
+                                  _evidenceButton(context, "Evidencias Hojalatería", _localImages, "hojalateria"),
                                   const SizedBox(height: 20),
-                                  _evidenceButton(context, "Evidencias Kilometraje", state.images, "kilometraje"),
+                                  _evidenceButton(context, "Evidencias Kilometraje", _localImages, "kilometraje"),
                                   const SizedBox(height: 20),
-                                  _evidenceButton(context, "Evidencias Tapicería", state.images, "tapiceria"),
+                                  _evidenceButton(context, "Evidencias Tapicería", _localImages, "tapiceria"),
                                   
                                   const SizedBox(height: 30),
 
@@ -249,7 +360,15 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
   }
 
   Widget _evidenceButton(BuildContext context, String text, List<dynamic> allImages, String typeFilter) {
-    final filteredImages = allImages.where((img) => img['type_evidence'] == typeFilter).toList();
+    final filteredImages = allImages.where((img) {
+      final type = img['type_evidence'];
+      return type == typeFilter;
+    }).toList();
+
+    print("🔍 [BotonEvidencia] Filtro: '$typeFilter' | Total: ${allImages.length} | Encontradas: ${filteredImages.length}");
+    if (filteredImages.isNotEmpty) {
+      print("🔍 [BotonEvidencia] Ejemplo de data filtrada: ${filteredImages.first}");
+    }
 
     return SizedBox(
       width: double.infinity,
@@ -281,6 +400,7 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
   }
 
   void _showImageSlider(BuildContext context, String title, List<dynamic> images) {
+    print("🖼️ [ImageSlider] Abriendo slider con ${images.length} imágenes.");
     showDialog(
       context: context,
       builder: (ctx) {
@@ -305,10 +425,22 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
                         itemCount: images.length,
                         itemBuilder: (context, index) {
                           final imgData = images[index];
-                          String imgUrl = imgData['path'] ?? "";
+                          print("🖼️ [ImageSlider] Procesando imagen index $index: $imgData");
+                          // Support both 'path' (old) and 'image' (new) keys
+                          String imgUrl = imgData['path'] ?? imgData['image'] ?? "";
                           if (!imgUrl.startsWith("http")) {
-                            imgUrl = "http://10.15.14.20:3000$imgUrl";
+                            // Ensure slash exists for uploads/ path
+                            String path = imgUrl.startsWith("/") ? imgUrl : "/$imgUrl";
+
+                            // Fix: Agregar prefijo /media si la ruta es de uploads
+                            if (path.startsWith("/uploads")) {
+                              path = "/media$path";
+                            }
+
+                            // Use the IP provided
+                            imgUrl = "http://10.15.14.20:3000$path";
                           }
+                          print("🖼️ [ImageSlider] URL Final generada: $imgUrl");
 
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -317,8 +449,10 @@ class RevisionEvidenciaAdmin extends StatelessWidget {
                                 child: Image.network(
                                   imgUrl,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) => 
-                                    const Icon(Icons.broken_image, size: 100, color: Colors.grey),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print("❌ [ImageSlider] Error cargando imagen ($imgUrl): $error");
+                                    return const Icon(Icons.broken_image, size: 100, color: Colors.grey);
+                                  },
                                 ),
                               ),
                               const SizedBox(height: 10),

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_screen.dart';
@@ -8,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class EvidenciaKilometrajeScreen extends StatefulWidget {
-  const EvidenciaKilometrajeScreen({super.key});
+  final bool isEndDay; // Nuevo parámetro
+  const EvidenciaKilometrajeScreen({super.key, this.isEndDay = false});
 
   @override
   State<EvidenciaKilometrajeScreen> createState() => _EvidenciaKilometrajeScreenState();
@@ -40,7 +43,48 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
 
   Future<void> _guardarValidacion() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("kilometraje_ok", true);
+    // Guardamos en diferente llave si es fin de día
+    String key = widget.isEndDay ? "kilometraje_end_ok" : "kilometraje_ok";
+    await prefs.setBool(key, true);
+  }
+
+  // Método local para actualizar KM Final (PATCH) según el requerimiento
+  Future<bool> _updateKmFinal(int userId, int km) async {
+    try {
+      final url = Uri.parse("http://10.15.14.20:3000/evidences/update/$userId");
+      
+      // Intentamos obtener el token si existe en preferencias (común en AuthService)
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); 
+      if (token == null) print("⚠️ Token no encontrado en SharedPreferences");
+      
+      final headers = {
+        "Content-Type": "application/json",
+        if (token != null) "Authorization": "Bearer $token",
+      };
+
+      final body = jsonEncode({
+        "km_final": km,
+        "end_lat": 19.4325,
+        "end_lng": -99.1331
+      });
+
+      print("🚀 Sending PATCH to $url");
+      print("👤 User ID enviado: $userId");
+      print("📦 Body enviado: $body");
+      final response = await http.patch(url, headers: headers, body: body);
+      print("✅ Response Code: ${response.statusCode}");
+      print("📄 Response Body: ${response.body}");
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        print("⚠️ Error en la respuesta del servidor: ${response.reasonPhrase}");
+      }
+      
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      print("❌ Error updating final KM: $e");
+      return false;
+    }
   }
 
   @override
@@ -89,10 +133,10 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Align(
+                            Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                "KM Inicial:",
+                                widget.isEndDay ? "KM Final:" : "KM Inicial:",
                                 style: TextStyle(color: Colors.white, fontSize: 18),
                               ),
                             ),
@@ -117,7 +161,7 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
 
                             _buildEvidenciaButton(
                               context,
-                              "KM inicio del día",
+                              widget.isEndDay ? "Foto Odómetro Final" : "KM inicio del día",
                               state.fotoKmInicio != null,
                               () => context.read<EvidenciaKilometrajeCubit>().tomarFotoKmInicio(),
                             ),
@@ -155,24 +199,31 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                             if (user != null && user.id != null && idEvidence != null) {
                                               print("🚀 DEBUG: Enviando datos al backend...");
                                               
-                                              // 1. Actualizar datos numéricos (KM)
-                                              print("⏳ DEBUG: Ejecutando updateEvidenceKm...");
-                                              final successKm = await authService.updateEvidenceKm(
-                                                userId: user.id!.toString(),
-                                                km: km,
-                                                lat: 19.4325, // Coordenadas fijas por ahora
-                                                lng: -99.1331,
-                                                image: state.fotoKmInicio,
-                                              );
-                                              print("✅ DEBUG: updateEvidenceKm finalizado. Resultado: $successKm");
+                                              bool successKm = false;
+                                              
+                                              if (widget.isEndDay) {
+                                                // Lógica de FIN DE DÍA
+                                                // Usamos el método local con el endpoint PATCH específico
+                                                print("🚀 Enviando KM Final para Usuario ID: ${user.id}");
+                                                successKm = await _updateKmFinal(user.id!, km);
+                                              } else {
+                                                // Lógica de INICIO DE DÍA
+                                                successKm = await authService.updateEvidenceKm(
+                                                  userId: user.id!.toString(),
+                                                  km: km,
+                                                  lat: 19.4325,
+                                                  lng: -99.1331,
+                                                  image: state.fotoKmInicio,
+                                                );
+                                              }
 
                                               // 2. Subir imagen (Endpoint evidences-img/create)
                                               print("⏳ DEBUG: Ejecutando uploadEvidencePhoto...");
                                               final successImg = await authService.uploadEvidencePhoto(
                                                 idEvidence: idEvidence,
                                                 typeEvidence: "kilometraje",
-                                                typeImage: "km_inicial",
-                                                typeStatus: "start",
+                                                typeImage: widget.isEndDay ? "km_final" : "km_inicial",
+                                                typeStatus: widget.isEndDay ? "end" : "start",
                                                 file: state.fotoKmInicio!,
                                               );
                                               print("✅ DEBUG: uploadEvidencePhoto finalizado. Resultado: $successImg");
@@ -181,18 +232,36 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
 
                                               if (successKm && successImg) {
                                                 print("✅ DEBUG: Éxito. Guardando localmente y saliendo.");
-                                                await _guardarValidacion();
-                                                if (!mounted) return;
-                                                
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text("Evidencias enviadas correctamente")),
-                                                );
+                                                if (widget.isEndDay) {
+                                                  // 🔹 Lógica de RESET para Fin de Día: Limpiar todo para permitir nueva asignación
+                                                  final prefs = await SharedPreferences.getInstance();
+                                                  await prefs.remove("mecanica_ok");
+                                                  await prefs.remove("kilometraje_ok");
+                                                  await prefs.remove("kilometraje_end_ok");
+                                                  await prefs.remove("hojalateria_ok");
+                                                  await prefs.remove("tapiceria_ok");
+                                                  await prefs.remove("vehiculo_asignado");
+                                                  await prefs.remove("current_evidence_id");
+                                                  await prefs.remove("assigned_car_id");
+                                                  await prefs.remove("assigned_user_id");
 
-                                                Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                                                  (route) => false,
-                                                );
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text("Turno finalizado. Unidad desasignada.")),
+                                                  );
+                                                  Navigator.pop(context);
+                                                } else {
+                                                  await _guardarValidacion();
+                                                  if (!mounted) return;
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text("Evidencias enviadas correctamente")),
+                                                  );
+                                                  Navigator.pushAndRemoveUntil(
+                                                    context,
+                                                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                                    (route) => false,
+                                                  );
+                                                }
                                               } else {
                                                 print("❌ DEBUG: Falló el envío. Detalles:");
                                                 print("   -> successKm: $successKm");

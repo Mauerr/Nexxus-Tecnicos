@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +6,8 @@ import 'package:nexxus/src/presentation/pages/auth/tecnicos/mecanica/evidenciaMe
 import 'package:nexxus/src/services/auth_service.dart';
 
 class EvidenciaMecanicaScreen extends StatefulWidget {
-  const EvidenciaMecanicaScreen({super.key});
+  final bool isEndDay;
+  const EvidenciaMecanicaScreen({super.key, this.isEndDay = false});
 
   @override
   State<EvidenciaMecanicaScreen> createState() => _EvidenciaMecanicaScreenState();
@@ -51,7 +51,8 @@ class _EvidenciaMecanicaScreenState extends State<EvidenciaMecanicaScreen> {
 
   Future<void> _guardarEstatus() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("mecanica_ok", true);
+    String key = widget.isEndDay ? "mecanica_end_ok" : "mecanica_ok";
+    await prefs.setBool(key, true);
   }
 
   @override
@@ -155,7 +156,7 @@ class _EvidenciaMecanicaScreenState extends State<EvidenciaMecanicaScreen> {
                                             idEvidence: idEvidence, // ID dinámico
                                             typeEvidence: "mecanica",
                                             typeImage: "aceite",
-                                            typeStatus: "start",
+                                            typeStatus: widget.isEndDay ? "end" : "start",
                                             file: state.fotoAceite!,
                                           );
                                           print("📸 Aceite upload success: $success");
@@ -167,7 +168,7 @@ class _EvidenciaMecanicaScreenState extends State<EvidenciaMecanicaScreen> {
                                             idEvidence: idEvidence,
                                             typeEvidence: "mecanica",
                                             typeImage: "frenos",
-                                            typeStatus: "start",
+                                            typeStatus: widget.isEndDay ? "end" : "start",
                                             file: state.fotoFrenos!,
                                           );
                                           print("📸 Frenos upload success: $success");
@@ -179,7 +180,7 @@ class _EvidenciaMecanicaScreenState extends State<EvidenciaMecanicaScreen> {
                                             idEvidence: idEvidence,
                                             typeEvidence: "mecanica",
                                             typeImage: "anticongelante",
-                                            typeStatus: "start",
+                                            typeStatus: widget.isEndDay ? "end" : "start",
                                             file: state.fotoAnticongelante!,
                                           );
                                           print("📸 Anticongelante upload success: $success");

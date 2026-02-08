@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,7 +6,8 @@ import 'evidenciaTapiceria_cubit.dart';
 import 'evidenciaTapiceria_state.dart';
 
 class EvidenciaTapiceriaScreen extends StatefulWidget {
-  const EvidenciaTapiceriaScreen({super.key});
+  final bool isEndDay;
+  const EvidenciaTapiceriaScreen({super.key, this.isEndDay = false});
 
   @override
   State<EvidenciaTapiceriaScreen> createState() => _EvidenciaTapiceriaScreenState();
@@ -50,7 +50,8 @@ class _EvidenciaTapiceriaScreenState extends State<EvidenciaTapiceriaScreen> {
 
   Future<void> _guardarEstatus() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("tapiceria_ok", true);
+    String key = widget.isEndDay ? "tapiceria_end_ok" : "tapiceria_ok";
+    await prefs.setBool(key, true);
   }
 
   @override
@@ -155,7 +156,7 @@ class _EvidenciaTapiceriaScreenState extends State<EvidenciaTapiceriaScreen> {
                                               idEvidence: idEvidence,
                                               typeEvidence: "tapiceria",
                                               typeImage: "asientos_d",
-                                              typeStatus: "start",
+                                              typeStatus: widget.isEndDay ? "end" : "start",
                                               file: state.fotoAsientosDelanteros!,
                                             );
                                             print("📸 Asientos Delanteros upload success: $success");
@@ -168,7 +169,7 @@ class _EvidenciaTapiceriaScreenState extends State<EvidenciaTapiceriaScreen> {
                                               idEvidence: idEvidence,
                                               typeEvidence: "tapiceria",
                                               typeImage: "asientos_t",
-                                              typeStatus: "start",
+                                              typeStatus: widget.isEndDay ? "end" : "start",
                                               file: state.fotoAsientosTraseros!,
                                             );
                                             print("📸 Asientos Traseros upload success: $success");
@@ -181,7 +182,7 @@ class _EvidenciaTapiceriaScreenState extends State<EvidenciaTapiceriaScreen> {
                                               idEvidence: idEvidence,
                                               typeEvidence: "tapiceria",
                                               typeImage: "tablero",
-                                              typeStatus: "start",
+                                              typeStatus: widget.isEndDay ? "end" : "start",
                                               file: state.fotoTablero!,
                                             );
                                             print("📸 Tablero upload success: $success");

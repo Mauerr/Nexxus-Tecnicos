@@ -12,7 +12,8 @@ import 'evidenciaHojalateria_cubit.dart';
 import 'evidenciaHojalateria_state.dart';
 
 class EvidenciaHojalateriaScreen extends StatefulWidget {
-  const EvidenciaHojalateriaScreen({super.key});
+  final bool isEndDay;
+  const EvidenciaHojalateriaScreen({super.key, this.isEndDay = false});
 
   @override
   State<EvidenciaHojalateriaScreen> createState() => _EvidenciaHojalateriaScreenState();
@@ -71,7 +72,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
               ),
 
               BlocBuilder<EvidenciaHojalateriaCubit, EvidenciaHojalateriaState>(
-                builder: (context, state) {
+                builder: (blocContext, state) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
@@ -102,7 +103,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                             child: Column(
                               children: [
                                 _botonEvidencia(
-                                  context,
+                                  blocContext,
                                   "Frente",
                                   state.fotoFrente != null,
                                   const ImagenInstructivaFrente(),
@@ -111,7 +112,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                 const SizedBox(height: 20),
 
                                 _botonEvidencia(
-                                  context,
+                                  blocContext,
                                   "Lateral Izquierdo",
                                   state.fotoIzquierdo != null,
                                   const ImagenInstructivaIzquierdo(),
@@ -120,7 +121,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                 const SizedBox(height: 20),
 
                                 _botonEvidencia(
-                                  context,
+                                  blocContext,
                                   "Lateral Derecho",
                                   state.fotoDerecho != null,
                                   const ImagenInstructivaDerecho(),
@@ -129,7 +130,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                 const SizedBox(height: 20),
 
                                 _botonEvidencia(
-                                  context,
+                                  blocContext,
                                   "Reverso",
                                   state.fotoReverso != null,
                                   const ImagenInstructivaReverso(),
@@ -167,7 +168,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                                 idEvidence: idEvidence,
                                                 typeEvidence: "hojalateria",
                                                 typeImage: "frente",
-                                                typeStatus: "start",
+                                                typeStatus: widget.isEndDay ? "end" : "start",
                                                 file: state.fotoFrente!,
                                               );
                                               print("📸 Frente upload success: $success");
@@ -180,7 +181,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                                 idEvidence: idEvidence,
                                                 typeEvidence: "hojalateria",
                                                 typeImage: "izq",
-                                                typeStatus: "start",
+                                                typeStatus: widget.isEndDay ? "end" : "start",
                                                 file: state.fotoIzquierdo!,
                                               );
                                               print("📸 Izquierdo upload success: $success");
@@ -193,7 +194,7 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                                 idEvidence: idEvidence,
                                                 typeEvidence: "hojalateria",
                                                 typeImage: "derecho",
-                                                typeStatus: "start",
+                                                typeStatus: widget.isEndDay ? "end" : "start",
                                                 file: state.fotoDerecho!,
                                               );
                                               print("📸 Derecho upload success: $success");
@@ -206,16 +207,16 @@ class _EvidenciaHojalateriaScreenState extends State<EvidenciaHojalateriaScreen>
                                                 idEvidence: idEvidence,
                                                 typeEvidence: "hojalateria",
                                                 typeImage: "trasera",
-                                                typeStatus: "start",
+                                                typeStatus: widget.isEndDay ? "end" : "start",
                                                 file: state.fotoReverso!,
                                               );
                                               print("📸 Reverso upload success: $success");
                                               if (!success) print("❌ ERROR: Falló la subida de la foto Reverso");
                                             }
 
-                                            await context
-                                                .read<EvidenciaHojalateriaCubit>()
-                                                .guardarValidacion();
+                                            // Guardar validación localmente
+                                            String key = widget.isEndDay ? "hojalateria_end_ok" : "hojalateria_ok";
+                                            await prefs.setBool(key, true);
 
                                             if (!mounted) return;
                                             setState(() => _isSending = false);
