@@ -13,6 +13,7 @@ import '../mecanica/evidenciamecanica.dart';
 import '../kilometraje/evidenciakilometraje.dart';
 import '../hojalateria/evidenciahojalateria.dart';
 import '../tapiceria/evidencia_tapiceria_screen.dart';
+import '../finalizardia/finalizardia_screen.dart';
 
 // Cubits
 import '../mecanica/evidenciaMecanica_cubit.dart';
@@ -374,16 +375,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// 🔹 KILOMETRAJE FINAL
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Kilometraje Final",
-                    BlocProvider(
-                      create: (_) => EvidenciaKilometrajeCubit(),
-                      child: const EvidenciaKilometrajeScreen(isEndDay: true),
+                  /// 🔹 PANTALLA FINALIZAR DÍA
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD9D9D9),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const FinalizarDiaScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "Ir a Finalizar Día",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                    evidenciaKilometrajeFinalOk,
                   ),
+
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
