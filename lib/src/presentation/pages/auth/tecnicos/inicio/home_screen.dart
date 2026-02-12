@@ -61,47 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> cargarEstatusEvidencias() async {
     final prefs = await SharedPreferences.getInstance();
-    final user = await AuthService().getLoggedUser();
-
-    // 1. Validar Usuario y Limpieza de Sesión Anterior
-    final int? storedUserId = prefs.getInt("assigned_user_id");
+    
+    // 🔹 CORRECCIÓN: Confiamos en el estado local (SharedPreferences) establecido durante la asignación.
+    // El objeto 'user' obtenido de getLoggedUser() es estático (del momento del login) y no refleja
+    // la asignación realizada posteriormente, lo que causaba que se borrara la asignación local erróneamente.
+    
     bool vAsignado = prefs.getBool("vehiculo_asignado") ?? false;
-
-    // Si hay vehículo asignado, debe coincidir el usuario. Si no hay usuario guardado o es diferente, limpiar.
-    if (vAsignado) {
-      if (user != null && (storedUserId == null || user.id != storedUserId)) {
-        print("⚠️ Usuario diferente o inconsistente detectado. Limpiando asignación anterior.");
-        await prefs.remove("vehiculo_asignado");
-        await prefs.remove("current_evidence_id");
-        await prefs.remove("assigned_car_id");
-        await prefs.remove("assigned_user_id");
-        await prefs.remove("mecanica_ok");
-        await prefs.remove("kilometraje_ok");
-        await prefs.remove("kilometraje_end_ok");
-        await prefs.remove("hojalateria_ok");
-        await prefs.remove("tapiceria_ok");
-        vAsignado = false;
-      }
-    }
-
-    // 2. Validar ID de Evidencia
+    
+    // Verificación opcional: Si está asignado, debe haber un ID de evidencia.
     final int? idEvidence = prefs.getInt('current_evidence_id');
+    
     if (vAsignado && idEvidence == null) {
-      print("⚠️ CORRECCIÓN AUTOMÁTICA: Vehículo asignado pero sin ID de evidencia. Reseteando para permitir reasignación.");
-      await prefs.setBool("vehiculo_asignado", false);
-      vAsignado = false;
+       print("⚠️ Estado local: Asignado, pero sin ID de evidencia. Manteniendo estado para evitar desincronización con backend.");
     }
-
-    // 3. Si no hay vehículo asignado, asegurar limpieza de banderas
-    if (!vAsignado) {
-      await prefs.remove("mecanica_ok");
-      await prefs.remove("kilometraje_ok");
-      await prefs.remove("kilometraje_end_ok");
-      await prefs.remove("hojalateria_ok");
-      await prefs.remove("tapiceria_ok");
-    }
-
-    // 4. Leer estatus actualizados
+    
     final bool mecOk = prefs.getBool("mecanica_ok") ?? false;
     final bool kmOk = prefs.getBool("kilometraje_ok") ?? false;
     final bool kmFinalOk = prefs.getBool("kilometraje_end_ok") ?? false;
@@ -120,6 +93,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     print("📊 ESTATUS HOME: Asignado=$vAsignado | Mec=$mecOk | Km=$kmOk | KmFinal=$kmFinalOk | Hoj=$hojOk | Tap=$tapOk");
+  }
+
+  Future<void> _limpiarAsignacionLocal(SharedPreferences prefs) async {
+    await prefs.remove("vehiculo_asignado");
+    await prefs.remove("current_evidence_id");
+    await prefs.remove("assigned_car_id");
+    await prefs.remove("assigned_user_id");
+    await prefs.remove("mecanica_ok");
+    await prefs.remove("kilometraje_ok");
+    await prefs.remove("kilometraje_end_ok");
+    await prefs.remove("hojalateria_ok");
+    await prefs.remove("tapiceria_ok");
   }
 
   @override
@@ -187,6 +172,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Bloquear selección si ya se inició la toma de evidencias
                         final bool isLocked = evidenciaMecanicaOk || evidenciaKilometrajeOk || evidenciaHojalateriaOk || evidenciaTapiceriaOk || vehiculoAsignado;
 
+                        // 🔹 RESTAURACIÓN MANUAL (Fallback): Si el Listener falló por race condition
+                        if (vehiculoAsignado && assignedCarId != null && state.selectedCar == null) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                             try {
+                               final restoredCar = state.cars.firstWhere((c) => c.id == assignedCarId);
+                               context.read<HomeCubit>().changeCar(restoredCar);
+                             } catch (_) {}
+                          });
+                        }
+
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
@@ -251,6 +246,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
                   const SizedBox(height: 50),
+
+                  /// 🔹 KILOMETRAJE FINAL (Visible solo si las demás están OK)
+                  if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk) ...[
+                    botonMenuBloqueable(
+                      context,
+                      "Evidencias Kilometraje Final",
+                      BlocProvider(
+                        create: (_) => EvidenciaKilometrajeCubit(),
+                        child: const EvidenciaKilometrajeScreen(isEndDay: true),
+                      ),
+                      evidenciaKilometrajeFinalOk,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
                   /// 🔹 MENSAJE FINAL CUANDO TODO ESTÁ COMPLETADO
                   if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk)
                     Column(
@@ -287,103 +297,117 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.remove("mecanica_ok");
-                              await prefs.remove("kilometraje_ok");
-                              await prefs.remove("kilometraje_end_ok");
-                              await prefs.remove("hojalateria_ok");
-                              await prefs.remove("tapiceria_ok");
-                              await prefs.remove("vehiculo_asignado");
-                              await prefs.remove("current_evidence_id");
-                              await prefs.remove("assigned_car_id");
-                              await prefs.remove("assigned_user_id");
-                              await AuthService().clearSession();
-
-                              if (!mounted) return;
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(builder: (_) => const Loginpage()),
-                                (route) => false,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Opción Ir a casa seleccionada")),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFD9D9D9),
+                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Ir a casa",
+                                  style: TextStyle(fontSize: 18, color: Colors.black),
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              "Finalizar",
-                              style: TextStyle(fontSize: 20, color: Colors.white),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  final prefs = await SharedPreferences.getInstance();
+                                  await prefs.remove("mecanica_ok");
+                                  await prefs.remove("kilometraje_ok");
+                                  await prefs.remove("kilometraje_end_ok");
+                                  await prefs.remove("hojalateria_ok");
+                                  await prefs.remove("tapiceria_ok");
+                                  await prefs.remove("vehiculo_asignado");
+                                  await prefs.remove("current_evidence_id");
+                                  await prefs.remove("assigned_car_id");
+                                  await prefs.remove("assigned_user_id");
+                                  await AuthService().clearSession();
+
+                                  if (!mounted) return;
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const Loginpage()),
+                                    (route) => false,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.redAccent,
+                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Finalizar día",
+                                  style: TextStyle(fontSize: 18, color: Colors.white),
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                         const SizedBox(height: 30),
                       ],
                     ),
 
 
-                  /// 🔹 MECÁNICA — con BlocProvider
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Mecánicas",
-                    BlocProvider(
-                      create: (_) => EvidenciaMecanicaCubit(),
-                      child: const EvidenciaMecanicaScreen(),
+                  /// 🔹 EVIDENCIAS INICIALES (Se ocultan al completar todas)
+                  if (!(evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk)) ...[
+                    /// 🔹 MECÁNICA — con BlocProvider
+                    botonMenuBloqueable(
+                      context,
+                      "Evidencias Mecánicas",
+                      BlocProvider(
+                        create: (_) => EvidenciaMecanicaCubit(),
+                        child: const EvidenciaMecanicaScreen(),
+                      ),
+                      evidenciaMecanicaOk,
                     ),
-                    evidenciaMecanicaOk,
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  /// 🔹 KILOMETRAJE — con BlocProvider
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Kilometraje",
-                    BlocProvider(
-                      create: (_) => EvidenciaKilometrajeCubit(),
-                      child: const EvidenciaKilometrajeScreen(),
+                    /// 🔹 KILOMETRAJE — con BlocProvider
+                    botonMenuBloqueable(
+                      context,
+                      "Evidencias Kilometraje",
+                      BlocProvider(
+                        create: (_) => EvidenciaKilometrajeCubit(),
+                        child: const EvidenciaKilometrajeScreen(),
+                      ),
+                      evidenciaKilometrajeOk,
                     ),
-                    evidenciaKilometrajeOk,
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  /// 🔹 HOJALATERÍA — sin cambios por ahora
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Hojalatería",
-                    const EvidenciaHojalateriaScreen(),
-                    evidenciaHojalateriaOk,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// 🔹 TAPICERÍA
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Tapicería",
-                    const EvidenciaTapiceriaScreen(),
-                    evidenciaTapiceriaOk,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  /// 🔹 KILOMETRAJE FINAL
-                  botonMenuBloqueable(
-                    context,
-                    "Evidencias Kilometraje Final",
-                    BlocProvider(
-                      create: (_) => EvidenciaKilometrajeCubit(),
-                      child: const EvidenciaKilometrajeScreen(isEndDay: true),
+                    /// 🔹 HOJALATERÍA — sin cambios por ahora
+                    botonMenuBloqueable(
+                      context,
+                      "Evidencias Hojalatería",
+                      const EvidenciaHojalateriaScreen(),
+                      evidenciaHojalateriaOk,
                     ),
-                    evidenciaKilometrajeFinalOk,
-                  ),
+
+                    const SizedBox(height: 20),
+
+                    /// 🔹 TAPICERÍA
+                    botonMenuBloqueable(
+                      context,
+                      "Evidencias Tapicería",
+                      const EvidenciaTapiceriaScreen(),
+                      evidenciaTapiceriaOk,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -439,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx); // Cerrar alerta
-              _realizarAsignacion(car);
+              _realizarAsignacion(context, car);
             },
             child: const Text("Aceptar", style: TextStyle(color: Colors.blue)),
           ),
@@ -449,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// 🔹 LÓGICA PARA ASIGNAR VEHÍCULO EN BACKEND
-  Future<void> _realizarAsignacion(CarModel car) async {
+  Future<void> _realizarAsignacion(BuildContext context, CarModel car) async {
     final authService = AuthService();
     final user = await authService.getLoggedUser();
 
