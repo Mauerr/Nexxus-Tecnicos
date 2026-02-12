@@ -233,21 +233,13 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                               if (successKm && successImg) {
                                                 print("✅ DEBUG: Éxito. Guardando localmente y saliendo.");
                                                 if (widget.isEndDay) {
-                                                  // 🔹 Lógica de RESET para Fin de Día: Limpiar todo para permitir nueva asignación
-                                                  final prefs = await SharedPreferences.getInstance();
-                                                  await prefs.remove("mecanica_ok");
-                                                  await prefs.remove("kilometraje_ok");
-                                                  await prefs.remove("kilometraje_end_ok");
-                                                  await prefs.remove("hojalateria_ok");
-                                                  await prefs.remove("tapiceria_ok");
-                                                  await prefs.remove("vehiculo_asignado");
-                                                  await prefs.remove("current_evidence_id");
-                                                  await prefs.remove("assigned_car_id");
-                                                  await prefs.remove("assigned_user_id");
+                                                  // 🔹 Solo marcamos como completado, NO limpiamos aún.
+                                                  // La limpieza se hace en FinalizarDiaScreen cuando el usuario da click en "Cerrar Sesión".
+                                                  await _guardarValidacion();
 
                                                   if (!mounted) return;
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text("Turno finalizado. Unidad desasignada.")),
+                                                    const SnackBar(content: Text("Kilometraje final registrado correctamente")),
                                                   );
                                                   Navigator.pop(context);
                                                 } else {

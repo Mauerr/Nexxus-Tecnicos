@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/finalizardia/finalizardia_screen.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/car_model.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_cubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_state.dart';
@@ -16,6 +17,7 @@ import '../tapiceria/evidencia_tapiceria_screen.dart';
 
 // Cubits
 import '../mecanica/evidenciaMecanica_cubit.dart';
+
 
 
 class HomeScreen extends StatefulWidget {
@@ -247,20 +249,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 50),
 
-                  /// 🔹 KILOMETRAJE FINAL (Visible solo si las demás están OK)
-                  if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk) ...[
-                    botonMenuBloqueable(
-                      context,
-                      "Evidencias Kilometraje Final",
-                      BlocProvider(
-                        create: (_) => EvidenciaKilometrajeCubit(),
-                        child: const EvidenciaKilometrajeScreen(isEndDay: true),
-                      ),
-                      evidenciaKilometrajeFinalOk,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
                   /// 🔹 MENSAJE FINAL CUANDO TODO ESTÁ COMPLETADO
                   if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk)
                     Column(
@@ -322,24 +310,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  final prefs = await SharedPreferences.getInstance();
-                                  await prefs.remove("mecanica_ok");
-                                  await prefs.remove("kilometraje_ok");
-                                  await prefs.remove("kilometraje_end_ok");
-                                  await prefs.remove("hojalateria_ok");
-                                  await prefs.remove("tapiceria_ok");
-                                  await prefs.remove("vehiculo_asignado");
-                                  await prefs.remove("current_evidence_id");
-                                  await prefs.remove("assigned_car_id");
-                                  await prefs.remove("assigned_user_id");
-                                  await AuthService().clearSession();
-
-                                  if (!mounted) return;
-                                  Navigator.pushAndRemoveUntil(
+                                onPressed: () {
+                                  Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const Loginpage()),
-                                    (route) => false,
+                                    MaterialPageRoute(builder: (_) => const FinalizarDiaScreen()),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -493,9 +467,17 @@ class _HomeScreenState extends State<HomeScreen> {
         await prefs.setInt("assigned_car_id", carId);
         await prefs.setInt("assigned_user_id", userId); // Guardar usuario para validar persistencia
 
+        // 🔹 LIMPIEZA PREVENTIVA: Al iniciar un nuevo turno, borramos cualquier rastro de "Fin de día" anterior
+        // Esto evita que los botones en FinalizarDiaScreen aparezcan deshabilitados por error.
+        await prefs.remove("mecanica_end_ok");
+        await prefs.remove("kilometraje_end_ok");
+        await prefs.remove("hojalateria_end_ok");
+        await prefs.remove("tapiceria_end_ok");
+
         setState(() {
           vehiculoAsignado = true;
           assignedCarId = carId;
+          evidenciaKilometrajeFinalOk = false;
         });
 
         // Actualizar visualmente el carro seleccionado en el Cubit
