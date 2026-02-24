@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/finalizardia/finalizardia_screen.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/finalizardia/iracasa_screen.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/car_model.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_cubit.dart';
 import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/home_state.dart';
@@ -14,6 +15,7 @@ import '../mecanica/evidenciamecanica.dart';
 import '../kilometraje/evidenciakilometraje.dart';
 import '../hojalateria/evidenciahojalateria.dart';
 import '../tapiceria/evidencia_tapiceria_screen.dart';
+import 'package:nexxus/src/presentation/pages/auth/tecnicos/inicio/empezar_labores_screen.dart';
 
 // Cubits
 import '../mecanica/evidenciaMecanica_cubit.dart';
@@ -38,6 +40,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool evidenciaTapiceriaOk = false;
   bool vehiculoAsignado = false;
   int? assignedCarId;
+  bool hideCompletionMessage = false;
+  bool readyToStartWork = false;
 
   /*final List<String> unidades = [
     "001 Volkswagen",
@@ -83,6 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool hojOk = prefs.getBool("hojalateria_ok") ?? false;
     final bool tapOk = prefs.getBool("tapiceria_ok") ?? false;
     final int? savedCarId = prefs.getInt("assigned_car_id");
+    final bool hideMsg = prefs.getBool("hide_completion_message") ?? false;
+    final bool ready = prefs.getBool("ready_to_start_work") ?? false;
 
     setState(() {
       evidenciaMecanicaOk = mecOk;
@@ -92,6 +98,8 @@ class _HomeScreenState extends State<HomeScreen> {
       evidenciaTapiceriaOk = tapOk;
       vehiculoAsignado = vAsignado;
       assignedCarId = savedCarId;
+      hideCompletionMessage = hideMsg;
+      readyToStartWork = ready;
     });
 
     print("📊 ESTATUS HOME: Asignado=$vAsignado | Mec=$mecOk | Km=$kmOk | KmFinal=$kmFinalOk | Hoj=$hojOk | Tap=$tapOk");
@@ -111,6 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
  Widget build(BuildContext context) {
+  // 🔹 INTERCEPTOR: Si está pendiente empezar labores, mostrar pantalla de bloqueo
+  if (readyToStartWork) {
+    return EmpezarLaboresScreen(onStart: () {
+      setState(() => readyToStartWork = false);
+      cargarEstatusEvidencias(); // Recargar para asegurar estado correcto
+    });
+  }
+
   return BlocProvider(
     create: (_) => HomeCubit(authService: AuthService()),
     child: BlocListener<HomeCubit, HomeState>(
@@ -253,6 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (evidenciaMecanicaOk && evidenciaKilometrajeOk && evidenciaHojalateriaOk && evidenciaTapiceriaOk)
                     Column(
                       children: [
+                        if (!hideCompletionMessage)
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
@@ -290,8 +307,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Opción Ir a casa seleccionada")),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const IraCasaScreen()),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -402,6 +420,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // await prefs.remove("hojalateria_ok");
                   // await prefs.remove("tapiceria_ok");
 
+                  await prefs.setBool("hide_completion_message", true);
                   await AuthService().clearSession();
 
                   if (!mounted) return;
@@ -456,10 +475,14 @@ class _HomeScreenState extends State<HomeScreen> {
       final int userId = user.id!; // Asumiendo que user.id ya es int
       final int carId = car.id!;
 
+      // 🔹 LIMPIEZA PREVIA: Eliminar ID de evidencia anterior para evitar datos cruzados
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('current_evidence_id');
+
       final success = await authService.createAssignment(userId: userId, carId: carId);
 
       // 🔹 Verificar si realmente obtuvimos el ID de la evidencia
-      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
       final int? evidenceId = prefs.getInt('current_evidence_id');
 
       if (success && evidenceId != null) {
@@ -473,6 +496,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await prefs.remove("kilometraje_end_ok");
         await prefs.remove("hojalateria_end_ok");
         await prefs.remove("tapiceria_end_ok");
+        await prefs.remove("hide_completion_message");
 
         setState(() {
           vehiculoAsignado = true;

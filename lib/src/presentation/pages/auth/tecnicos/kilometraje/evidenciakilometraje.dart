@@ -188,7 +188,7 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                             
                                             // 🔹 Obtener ID de evidencia para subir la foto
                                             final prefs = await SharedPreferences.getInstance();
-                                            final int? idEvidence = prefs.getInt('current_evidence_id');
+                                            int? idEvidence = prefs.getInt('current_evidence_id');
 
                                             print("🔍 DEBUG: Iniciando proceso de validación...");
                                             print("   -> Usuario ID: ${user?.id}");
@@ -196,7 +196,7 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                             print("   -> Foto presente: ${state.fotoKmInicio != null}");
                                             print("   -> Evidence ID (SharedPreferences): $idEvidence");
 
-                                            if (user != null && user.id != null && idEvidence != null) {
+                                            if (user != null && user.id != null) {
                                               print("🚀 DEBUG: Enviando datos al backend...");
                                               
                                               bool successKm = false;
@@ -215,18 +215,49 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                                   lng: -99.1331,
                                                   image: state.fotoKmInicio,
                                                 );
+
+                                                // 🔹 AUTO-RECUPERACIÓN: Si falla (404), intentamos crear la asignación
+                                                if (!successKm) {
+                                                  final int? savedCarId = prefs.getInt("assigned_car_id");
+                                                  if (savedCarId != null) {
+                                                    print("⚠️ Falló actualización de KM. Intentando crear asignación para Car ID: $savedCarId...");
+                                                    final bool assignmentCreated = await authService.createAssignment(userId: user.id!, carId: savedCarId);
+                                                    
+                                                    if (assignmentCreated) {
+                                                      print("✅ Asignación creada/recuperada. Reintentando actualización de KM...");
+                                                      // Reintentar update KM
+                                                      successKm = await authService.updateEvidenceKm(
+                                                        userId: user.id!.toString(),
+                                                        km: km,
+                                                        lat: 19.4325,
+                                                        lng: -99.1331,
+                                                        image: state.fotoKmInicio,
+                                                      );
+                                                      
+                                                      // Actualizar idEvidence para la foto
+                                                      await prefs.reload();
+                                                      idEvidence = prefs.getInt('current_evidence_id');
+                                                      print("🔄 Nuevo ID de evidencia obtenido: $idEvidence");
+                                                    }
+                                                  }
+                                                }
                                               }
 
                                               // 2. Subir imagen (Endpoint evidences-img/create)
-                                              print("⏳ DEBUG: Ejecutando uploadEvidencePhoto...");
-                                              final successImg = await authService.uploadEvidencePhoto(
-                                                idEvidence: idEvidence,
-                                                typeEvidence: "kilometraje",
-                                                typeImage: widget.isEndDay ? "km_final" : "km_inicial",
-                                                typeStatus: widget.isEndDay ? "end" : "start",
-                                                file: state.fotoKmInicio!,
-                                              );
-                                              print("✅ DEBUG: uploadEvidencePhoto finalizado. Resultado: $successImg");
+                                              bool successImg = false;
+                                              if (idEvidence != null) {
+                                                print("⏳ DEBUG: Ejecutando uploadEvidencePhoto...");
+                                                successImg = await authService.uploadEvidencePhoto(
+                                                  idEvidence: idEvidence!,
+                                                  typeEvidence: "kilometraje",
+                                                  typeImage: widget.isEndDay ? "km_final" : "km_inicial",
+                                                  typeStatus: widget.isEndDay ? "end" : "start",
+                                                  file: state.fotoKmInicio!,
+                                                );
+                                                print("✅ DEBUG: uploadEvidencePhoto finalizado. Resultado: $successImg");
+                                              } else {
+                                                print("❌ ERROR: No se tiene un ID de evidencia para subir la foto.");
+                                              }
 
                                               print("📡 DEBUG: Resultado KM: $successKm | IMG: $successImg");
 
@@ -241,7 +272,7 @@ class _EvidenciaKilometrajeScreenState extends State<EvidenciaKilometrajeScreen>
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(content: Text("Kilometraje final registrado correctamente")),
                                                   );
-                                                  Navigator.pop(context);
+                                                  Navigator.pop(context, true);
                                                 } else {
                                                   await _guardarValidacion();
                                                   if (!mounted) return;

@@ -485,6 +485,25 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// OBTENER ASIGNACIÓN DE USUARIO (Estado Actual/Último)
+  /// ----------------------------
+  Future<Map<String, dynamic>?> getUserAssignment(int userId) async {
+    try {
+      final url = Uri.parse("$baseUrl/evidences/user/$userId");
+      final headers = await authHeaders();
+      final res = await http.get(url, headers: headers);
+
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body);
+      }
+      return null;
+    } catch (e) {
+      print("❌ GET USER ASSIGNMENT ERROR: $e");
+      return null;
+    }
+  }
+
+  /// ----------------------------
   /// OBTENER IMÁGENES DE EVIDENCIA
   /// ----------------------------
   Future<List<dynamic>> getEvidenceImages(int evidenceId) async {
