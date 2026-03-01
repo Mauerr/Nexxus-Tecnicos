@@ -21,8 +21,11 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
   late RevisionEvidenciaCubit _cubit;
   List<dynamic> _localImages = [];
   bool _isLoadingLocal = false;
-  String _formattedDate = "Sin fecha";
-  String _assignedUser = "Sin asignar";
+  
+  List<dynamic> _allEvidences = [];
+  List<Map<String, dynamic>> _availableUsers = [];
+  String? _selectedUserId;
+  DateTimeRange? _selectedDateRange;
 
   @override
   void initState() {
@@ -39,8 +42,10 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
   Future<void> _fetchEvidence(int carId) async {
     setState(() {
       _isLoadingLocal = true;
-      _formattedDate = "Sin fecha";
-      _assignedUser = "Sin asignar";
+      _allEvidences = [];
+      _availableUsers = [];
+      _selectedUserId = null;
+      _selectedDateRange = null;
     });
     print("🔵 [RevisionEvidencia] Iniciando petición para carId: $carId");
     try {
@@ -64,44 +69,23 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
           final List<dynamic> data = decoded;
           print("🔵 [RevisionEvidencia] Cantidad de asignaciones: ${data.length}");
           
-          // Obtener la fecha de la última evidencia (último elemento de la lista)
-          String newDate = "Sin fecha";
-          String newUser = "Sin asignar";
-          if (data.isNotEmpty) {
-            try {
-              final lastItem = data.last;
-              // Extraemos la fecha de id_assignment -> start_date como se solicitó
-              final String? rawDate = lastItem['id_assignment']?['start_date'];
-              
-              if (rawDate != null) {
-                final DateTime dt = DateTime.parse(rawDate).toLocal();
-                final String day = dt.day.toString().padLeft(2, '0');
-                final String month = dt.month.toString().padLeft(2, '0');
-                final String year = dt.year.toString();
-                final String hour = dt.hour.toString().padLeft(2, '0');
-                final String minute = dt.minute.toString().padLeft(2, '0');
-                newDate = "$day-$month-$year - $hour:$minute";
+          // Extraer usuarios únicos para el filtro
+          final Map<String, Map<String, dynamic>> usersMap = {};
+          for (var item in data) {
+            final user = item['id_assignment']?['id_user'];
+            if (user != null) {
+              final id = user['id']?.toString();
+              final name = user['name'];
+              if (id != null && name != null) {
+                usersMap[id] = {'id': id, 'name': name};
               }
-
-              // Extraer nombre del usuario
-              final userObj = lastItem['id_assignment']?['id_user'];
-              if (userObj != null) {
-                final String name = userObj['name'] ?? "";
-                newUser = name;
-              }
-            } catch (e) {
-              print("❌ [RevisionEvidencia] Error parseando fecha: $e");
             }
           }
 
-          // Flatten images from all assignments safely
-          final List<dynamic> allImages = data.expand((e) => ((e['images'] as List?) ?? [])).toList();
-          
-          print("✅ [RevisionEvidencia] Total de imágenes extraídas: ${allImages.length}");
           setState(() {
-            _localImages = allImages;
-            _formattedDate = newDate;
-            _assignedUser = newUser;
+            _allEvidences = data;
+            _availableUsers = usersMap.values.toList();
+            _applyFilters();
           });
         } else {
           print("❌ [RevisionEvidencia] El cuerpo de la respuesta no es una lista.");
@@ -116,6 +100,54 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
       setState(() => _localImages = []);
     } finally {
       setState(() => _isLoadingLocal = false);
+    }
+  }
+
+  void _applyFilters() {
+    List<dynamic> filtered = List.from(_allEvidences);
+
+    // 1. Filtro por Usuario
+    if (_selectedUserId != null) {
+      filtered = filtered.where((item) {
+        final userId = item['id_assignment']?['id_user']?['id']?.toString();
+        return userId == _selectedUserId;
+      }).toList();
+    }
+
+    // 2. Filtro por Rango de Fechas
+    if (_selectedDateRange != null) {
+      filtered = filtered.where((item) {
+        final dateStr = item['id_assignment']?['start_date'];
+        if (dateStr == null) return false;
+        final date = DateTime.tryParse(dateStr);
+        if (date == null) return false;
+        
+        // Comparación inclusiva (start <= date < end + 1 dia)
+        return date.isAfter(_selectedDateRange!.start.subtract(const Duration(seconds: 1))) && 
+               date.isBefore(_selectedDateRange!.end.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    final List<dynamic> newImages = filtered.expand((e) => ((e['images'] as List?) ?? [])).toList();
+
+    setState(() {
+      _localImages = newImages;
+    });
+  }
+
+  Future<void> _pickDateRange(BuildContext context) async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 1)),
+      initialDateRange: _selectedDateRange,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDateRange = picked;
+      });
+      _applyFilters();
     }
   }
 
@@ -168,10 +200,6 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
                   }
 
                   if (state is RevisionEvidenciaLoaded) {
-                    // Extraer datos para mostrar
-                    final date = _formattedDate;
-                    final user = _assignedUser;
-                    
                     return Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -249,57 +277,82 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
 
                             const SizedBox(height: 20),
 
+                            // 🔹 Filtros (Usuario y Fecha)
+                            if (state.selectedCar != null) ...[
+                              const Text(
+                                "Filtros",
+                                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
+                              // Dropdown Usuario
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: _selectedUserId,
+                                    isExpanded: true,
+                                    hint: const Text("Filtrar por Usuario"),
+                                    items: [
+                                      const DropdownMenuItem(value: null, child: Text("Todos los usuarios")),
+                                      ..._availableUsers.map((u) => DropdownMenuItem(
+                                        value: u['id'].toString(),
+                                        child: Text(u['name']),
+                                      )),
+                                    ],
+                                    onChanged: (val) {
+                                      setState(() => _selectedUserId = val);
+                                      _applyFilters();
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              // Selector de Fechas
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.calendar_today, color: Colors.black),
+                                  label: Text(
+                                    _selectedDateRange == null 
+                                      ? "Seleccionar Rango de Fechas" 
+                                      : "Del ${_selectedDateRange!.start.day}/${_selectedDateRange!.start.month} al ${_selectedDateRange!.end.day}/${_selectedDateRange!.end.month}",
+                                    style: const TextStyle(color: Colors.black, fontSize: 16),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                  onPressed: () => _pickDateRange(context),
+                                ),
+                              ),
+                              if (_selectedDateRange != null || _selectedUserId != null)
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedDateRange = null;
+                                        _selectedUserId = null;
+                                      });
+                                      _applyFilters();
+                                    },
+                                    child: const Text("Limpiar Filtros", style: TextStyle(color: Colors.redAccent)),
+                                  ),
+                                ),
+                              const SizedBox(height: 20),
+                            ],
+
                             // 🔹 Indicador de carga de evidencia
                             if (state.isLoadingEvidence || _isLoadingLocal)
                               const Center(child: Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: CircularProgressIndicator(color: Colors.white),
                               )),
-
-                            // 🔹 Fecha
-                            const Text(
-                              "Fecha última evidencia",
-                              style: TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.white70,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                state.selectedCar == null ? "-" : date,
-                                style: const TextStyle(fontSize: 16, color: Colors.black87),
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // 🔹 Usuario asignado
-                            const Center(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Usuario Asignado",
-                                    style: TextStyle(color: Colors.white, fontSize: 18),
-                                  ),
-                                  SizedBox(height: 4),
-                                ],
-                              ),
-                            ),
-                            Center(
-                              child: Text(
-                                state.selectedCar == null ? "-" : user,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
 
                             const SizedBox(height: 40),
 
@@ -314,32 +367,6 @@ class _RevisionEvidenciaAdminState extends State<RevisionEvidenciaAdmin> {
                                   _evidenceButton(context, "Evidencias Kilometraje", _localImages, "kilometraje"),
                                   const SizedBox(height: 20),
                                   _evidenceButton(context, "Evidencias Tapicería", _localImages, "tapiceria"),
-                                  
-                                  const SizedBox(height: 30),
-
-                                  // 🔹 Botón salir (inferior)
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.6,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const HomeAdmin()),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFFD9D9D9),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(vertical: 15),
-                                      ),
-                                      child: const Text(
-                                        "Salir",
-                                        style: TextStyle(fontSize: 18, color: Colors.black),
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
