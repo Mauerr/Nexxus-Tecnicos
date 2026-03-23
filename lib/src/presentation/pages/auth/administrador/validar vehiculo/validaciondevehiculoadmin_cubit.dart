@@ -21,6 +21,7 @@ class ValidacionVehiculosAdminCubit extends Cubit<ValidacionVehiculosAdminState>
     required String marca,
     required String modelo,
     required String yearStr,
+    required String fechaAdq,
     required String color,
     required String matricula,
   }) async {
@@ -37,13 +38,17 @@ class ValidacionVehiculosAdminCubit extends Cubit<ValidacionVehiculosAdminState>
 
     emit(ValidacionVehiculosAdminLoading());
 
-    final carData = {
+    final Map<String, dynamic> carData = {
       "marca": marca,
       "model": modelo,
       "year": year,
       "color": color,
       "matricula": matricula,
     };
+
+    if (fechaAdq.isNotEmpty) {
+      carData["fecha_adquisicion"] = fechaAdq;
+    }
 
     final success = await authService.registerCar(carData);
 
@@ -61,6 +66,7 @@ class ValidacionVehiculosAdminCubit extends Cubit<ValidacionVehiculosAdminState>
     required String marca,
     required String modelo,
     required String yearStr,
+    required String fechaAdq,
     required String color,
     required String matricula,
   }) async {
@@ -77,13 +83,17 @@ class ValidacionVehiculosAdminCubit extends Cubit<ValidacionVehiculosAdminState>
 
     emit(ValidacionVehiculosAdminLoading());
 
-    final carData = {
+    final Map<String, dynamic> carData = {
       "marca": marca,
       "model": modelo,
       "year": year,
       "color": color,
       "matricula": matricula,
     };
+
+    if (fechaAdq.isNotEmpty) {
+      carData["fecha_adquisicion"] = fechaAdq;
+    }
 
     final success = await authService.updateCar(id, carData);
 

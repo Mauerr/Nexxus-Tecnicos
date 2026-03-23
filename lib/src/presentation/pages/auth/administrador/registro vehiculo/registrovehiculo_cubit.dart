@@ -27,8 +27,8 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
     required String color,
     required String matricula,
   }) async {
-    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || fechaAdq.isEmpty || color.isEmpty || matricula.isEmpty) {
-      emit(RegistroVehiculoError("Por favor completa todos los campos"));
+    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || color.isEmpty || matricula.isEmpty) {
+      emit(RegistroVehiculoError("Por favor completa todos los campos requeridos"));
       return;
     }
 
@@ -40,16 +40,24 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
 
     emit(RegistroVehiculoLoading());
 
-    final carData = {
+    final Map<String, dynamic> carData = {
       "marca": marca,
       "model": modelo,
       "year": year,
-      "fecha_adquisicion": fechaAdq,
       "color": color,
       "matricula": matricula,
     };
 
+    if (fechaAdq.isNotEmpty) {
+      carData["fecha_adquisicion"] = fechaAdq;
+    }
+
+    print("🚀 [RegistroVehiculoCubit] Enviando solicitud para registrar unidad...");
+    print("📦 [RegistroVehiculoCubit] Payload que se enviará: $carData");
+
     final success = await authService.registerCar(carData);
+
+    print("📡 [RegistroVehiculoCubit] Resultado del registro: $success");
 
     if (success) {
       emit(RegistroVehiculoActionSuccess("Unidad registrada con éxito"));
@@ -70,8 +78,8 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
     required String color,
     required String matricula,
   }) async {
-    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || fechaAdq.isEmpty || color.isEmpty || matricula.isEmpty) {
-      emit(RegistroVehiculoError("Por favor completa todos los campos"));
+    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || color.isEmpty || matricula.isEmpty) {
+      emit(RegistroVehiculoError("Por favor completa todos los campos requeridos"));
       return;
     }
 
@@ -84,14 +92,17 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
     print("🛠️ [Cubit] Enviando solicitud de edición para ID: $id");
     emit(RegistroVehiculoLoading());
 
-    final carData = {
+    final Map<String, dynamic> carData = {
       "marca": marca,
       "model": modelo,
       "year": year,
-      "fecha_adquisicion": fechaAdq,
       "color": color,
       "matricula": matricula,
     };
+
+    if (fechaAdq.isNotEmpty) {
+      carData["fecha_adquisicion"] = fechaAdq;
+    }
 
     final success = await authService.updateCar(id, carData);
 

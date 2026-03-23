@@ -124,7 +124,7 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                       const SizedBox(height: 15),
                       buildCampo("Año:", _yearCtrl, isNumber: true),
                       const SizedBox(height: 15),
-                      buildCampo("Fecha de adquisición:", _fechaAdqCtrl),
+                      buildCampo("Fecha de adquisición (Opcional):", _fechaAdqCtrl, hint: "YYYY-MM-DD"),
                       const SizedBox(height: 15),
                       buildCampo("Color:", _colorCtrl),
                       const SizedBox(height: 15),
@@ -217,7 +217,7 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
   }
 
   // 🔹 TextField con estilo Nexxus
-  Widget buildCampo(String label, TextEditingController controller, {bool isNumber = false}) {
+  Widget buildCampo(String label, TextEditingController controller, {bool isNumber = false, String? hint}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -235,8 +235,10 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
             controller: controller,
             keyboardType: isNumber ? TextInputType.number : TextInputType.text,
             style: const TextStyle(fontSize: 16, color: Colors.black87),
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.black38),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: InputBorder.none,
             ),
           ),

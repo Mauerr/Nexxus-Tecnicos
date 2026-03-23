@@ -6,6 +6,7 @@ class CarModel {
   final int? year;
   final String? color;
   final String? matricula;
+  final String? fechaAdquisicion;
 
   CarModel({
     this.id,
@@ -15,6 +16,7 @@ class CarModel {
     this.year,
     this.color,
     this.matricula,
+    this.fechaAdquisicion,
   });
 
   factory CarModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class CarModel {
       year: json['year'] is String ? int.tryParse(json['year']) : json['year'],
       color: json['color'],
       matricula: json['matricula'],
+      fechaAdquisicion: json['fecha_adquisicion'],
     );
   }
 
@@ -39,5 +42,6 @@ class CarModel {
         "year": year,
         "color": color,
         "matricula": matricula,
+        "fecha_adquisicion": fechaAdquisicion,
       };
 }

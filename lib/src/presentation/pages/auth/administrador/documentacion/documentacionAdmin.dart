@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'barrilExportPath.dart';
+import '../barrilExportPath.dart';
 
 
 class ArchivosVehiculoAdmin extends StatefulWidget {

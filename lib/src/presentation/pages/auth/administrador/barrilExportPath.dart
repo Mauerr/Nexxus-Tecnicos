@@ -7,7 +7,7 @@ export 'package:nexxus/src/presentation/pages/auth/administrador/opcionesvalidac
 export 'package:nexxus/src/presentation/pages/auth/login/loginpage.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/revision%20de%20evidencia/revisionevidencia.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutasAdmin.dart';
-export 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
+export 'package:nexxus/src/presentation/pages/auth/administrador/documentacion/documentacionAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutas_cubir.dart';
 export  'package:nexxus/src/presentation/pages/auth/administrador/validar%20vehiculo/validaciondevehiculosadmin.dart';

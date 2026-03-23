@@ -19,6 +19,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
   final TextEditingController _marcaCtrl = TextEditingController();
   final TextEditingController _modeloCtrl = TextEditingController();
   final TextEditingController _yearCtrl = TextEditingController();
+  final TextEditingController _fechaAdqCtrl = TextEditingController();
   final TextEditingController _colorCtrl = TextEditingController();
   final TextEditingController _matriculaCtrl = TextEditingController();
 
@@ -30,6 +31,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
       _marcaCtrl.text = car.marca ?? '';
       _modeloCtrl.text = car.model ?? '';
       _yearCtrl.text = car.year?.toString() ?? '';
+      _fechaAdqCtrl.text = car.fechaAdquisicion ?? '';
       _colorCtrl.text = car.color ?? '';
       _matriculaCtrl.text = car.matricula ?? '';
     });
@@ -41,6 +43,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
       _marcaCtrl.clear();
       _modeloCtrl.clear();
       _yearCtrl.clear();
+      _fechaAdqCtrl.clear();
       _colorCtrl.clear();
       _matriculaCtrl.clear();
     });
@@ -146,6 +149,8 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
                         const SizedBox(height: 15),
                         buildCampo("Año:", _yearCtrl, isNumber: true),
                         const SizedBox(height: 15),
+                        buildCampo("Fecha de adquisición (Opcional):", _fechaAdqCtrl, hint: "YYYY-MM-DD"),
+                        const SizedBox(height: 15),
                         buildCampo("Color:", _colorCtrl),
                         const SizedBox(height: 15),
                         buildCampo("Matrícula:", _matriculaCtrl),
@@ -170,6 +175,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
                                         marca: _marcaCtrl.text,
                                         modelo: _modeloCtrl.text,
                                         yearStr: _yearCtrl.text,
+                                        fechaAdq: _fechaAdqCtrl.text,
                                         color: _colorCtrl.text,
                                         matricula: _matriculaCtrl.text,
                                       );
@@ -295,7 +301,7 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
   }
 
   // 🔹 TextField con estilo Nexxus
-  Widget buildCampo(String label, TextEditingController controller, {bool isNumber = false}) {
+  Widget buildCampo(String label, TextEditingController controller, {bool isNumber = false, String? hint}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -313,8 +319,10 @@ class _ValidacionVehiculosAdminState extends State<ValidacionVehiculosAdmin> {
             controller: controller,
             keyboardType: isNumber ? TextInputType.number : TextInputType.text,
             style: const TextStyle(fontSize: 16, color: Colors.black87),
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(color: Colors.black38),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: InputBorder.none,
             ),
           ),
