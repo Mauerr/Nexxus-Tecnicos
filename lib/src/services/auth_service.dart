@@ -158,6 +158,63 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// SUBIR DOCUMENTOS DE VEHÍCULO
+  /// ----------------------------
+  Future<bool> uploadCarDocument({
+    required int idCars,
+    required String typeDoc,
+    String? filePath,
+  }) async {
+    try {
+      // 🔹 Ruta actualizada según la nueva documentación del backend
+      final url = Uri.parse("$baseUrl/cars-docs/create"); 
+
+      var request = http.MultipartRequest('POST', url);
+      
+      final headers = await authHeaders();
+      headers.remove('Content-Type');
+      request.headers.addAll(headers);
+
+      request.fields['id_cars'] = idCars.toString();
+      request.fields['type_doc'] = typeDoc;
+
+      if (filePath != null && filePath.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath('file', filePath));
+      }
+
+      print("🚀 [AuthService] Enviando petición Multipart POST");
+      print("🌐 URL: $url");
+      print("🔑 Headers: ${request.headers}");
+      print("📦 Fields: ${request.fields}");
+      print("📁 Files: ${request.files.map((f) => '${f.field}: ${f.filename}').toList()}");
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+      
+      print("📡 Status Code: ${response.statusCode}");
+
+      // 🔹 Si el servidor arroja un error web (HTML), extraemos el mensaje real
+      if (responseBody.contains('<title>') || responseBody.contains('<!DOCTYPE html>')) {
+        final titleMatch = RegExp(r'<title>(.*?)</title>', dotAll: true).firstMatch(responseBody);
+        final excMatch = RegExp(r'<pre class="exception_value">(.*?)</pre>', dotAll: true).firstMatch(responseBody);
+        print("========================================");
+        print("🚨 EL BACKEND (SERVIDOR) ESTÁ FALLANDO 🚨");
+        print("📌 Código de Estado: ${response.statusCode}");
+        if (titleMatch != null) print("📌 Problema: ${titleMatch.group(1)?.replaceAll('\n', ' ').trim()}");
+        if (excMatch != null) print("📌 Detalle: ${excMatch.group(1)?.trim()}");
+        print("========================================");
+      } else {
+        print("📡 Response Body: $responseBody");
+      }
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print("❌ Error al subir documento: $e");
+      return false;
+    }
+  }
+
+  /// ----------------------------
   /// SUBIR IMAGEN EVIDENCIA (POST)
   /// ----------------------------
   Future<bool> uploadEvidencePhoto({
