@@ -69,18 +69,6 @@ class HomeAdmin extends StatelessWidget {
                           "Mantenimiento",
                           const MantenimientoAdminScreen(),
                         ),
-                        const SizedBox(height: 20),
-                        customButton(
-                          context,
-                          "Aprovisionamiento de Vehículos",
-                          const AprovisionamientoAdmin(),
-                        ),
-                        const SizedBox(height: 20),
-                        customButton(
-                          context,
-                          "Asignación de Rutas",
-                          const AsignacionRutasAdmin(),
-                        ),
                       ],
                     ),
                   ),

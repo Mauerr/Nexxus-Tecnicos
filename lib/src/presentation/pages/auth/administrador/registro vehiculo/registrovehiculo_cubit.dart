@@ -23,10 +23,11 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
     required String marca,
     required String modelo,
     required String yearStr,
+    required String fechaAdq,
     required String color,
     required String matricula,
   }) async {
-    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || color.isEmpty || matricula.isEmpty) {
+    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || fechaAdq.isEmpty || color.isEmpty || matricula.isEmpty) {
       emit(RegistroVehiculoError("Por favor completa todos los campos"));
       return;
     }
@@ -43,6 +44,7 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
       "marca": marca,
       "model": modelo,
       "year": year,
+      "fecha_adquisicion": fechaAdq,
       "color": color,
       "matricula": matricula,
     };
@@ -64,10 +66,11 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
     required String marca,
     required String modelo,
     required String yearStr,
+    required String fechaAdq,
     required String color,
     required String matricula,
   }) async {
-    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || color.isEmpty || matricula.isEmpty) {
+    if (marca.isEmpty || modelo.isEmpty || yearStr.isEmpty || fechaAdq.isEmpty || color.isEmpty || matricula.isEmpty) {
       emit(RegistroVehiculoError("Por favor completa todos los campos"));
       return;
     }
@@ -85,6 +88,7 @@ class RegistroVehiculoCubit extends Cubit<RegistroVehiculoState> {
       "marca": marca,
       "model": modelo,
       "year": year,
+      "fecha_adquisicion": fechaAdq,
       "color": color,
       "matricula": matricula,
     };

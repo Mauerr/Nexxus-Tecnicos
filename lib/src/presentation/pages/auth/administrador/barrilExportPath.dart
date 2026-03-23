@@ -10,7 +10,7 @@ export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutas
 export 'package:nexxus/src/presentation/pages/auth/administrador/documentacionAdmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciafotografica.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/asignacionRutas_cubir.dart';
-export  'package:nexxus/src/presentation/pages/auth/administrador/validaciondevehiculosadmin.dart';
+export  'package:nexxus/src/presentation/pages/auth/administrador/validar%20vehiculo/validaciondevehiculosadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciahojalateriaadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciakilometricaadmin.dart';
 export 'package:nexxus/src/presentation/pages/auth/administrador/evidenciasmecanicasadmin.dart';

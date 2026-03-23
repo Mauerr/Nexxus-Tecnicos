@@ -19,28 +19,16 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
   final TextEditingController _marcaCtrl = TextEditingController();
   final TextEditingController _modeloCtrl = TextEditingController();
   final TextEditingController _yearCtrl = TextEditingController();
+  final TextEditingController _fechaAdqCtrl = TextEditingController();
   final TextEditingController _colorCtrl = TextEditingController();
   final TextEditingController _matriculaCtrl = TextEditingController();
 
-  CarModel? _selectedCar; // Para saber si estamos editando
-
-  void _selectCar(CarModel car) {
-    setState(() {
-      _selectedCar = car;
-      _marcaCtrl.text = car.marca ?? '';
-      _modeloCtrl.text = car.model ?? '';
-      _yearCtrl.text = car.year?.toString() ?? '';
-      _colorCtrl.text = car.color ?? '';
-      _matriculaCtrl.text = car.matricula ?? '';
-    });
-  }
-
   void _clearForm() {
     setState(() {
-      _selectedCar = null;
       _marcaCtrl.clear();
       _modeloCtrl.clear();
       _yearCtrl.clear();
+      _fechaAdqCtrl.clear();
       _colorCtrl.clear();
       _matriculaCtrl.clear();
     });
@@ -123,20 +111,9 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                       const SizedBox(height: 20),
 
                       // 🔹 Título de Sección: Formulario
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedCar == null ? "Nueva Unidad" : "Editando Unidad",
-                            style: const TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          if (_selectedCar != null)
-                            TextButton.icon(
-                              onPressed: _clearForm,
-                              icon: const Icon(Icons.close, color: Colors.white70, size: 16),
-                              label: const Text("Cancelar", style: TextStyle(color: Colors.white70)),
-                            )
-                        ],
+                      const Text(
+                        "Nueva Unidad",
+                        style: TextStyle(color: Colors.greenAccent, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10),
 
@@ -146,6 +123,8 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                       buildCampo("Modelo:", _modeloCtrl),
                       const SizedBox(height: 15),
                       buildCampo("Año:", _yearCtrl, isNumber: true),
+                      const SizedBox(height: 15),
+                      buildCampo("Fecha de adquisición:", _fechaAdqCtrl),
                       const SizedBox(height: 15),
                       buildCampo("Color:", _colorCtrl),
                       const SizedBox(height: 15),
@@ -157,59 +136,22 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                       Builder(
                         builder: (context) {
                           final cubit = context.read<RegistroVehiculoCubit>();
-                          
-                          if (_selectedCar == null) {
-                            // MODO REGISTRO
-                            return customButton(
-                              context,
-                              "Guardar Unidad",
-                              Colors.white,
-                              Colors.black,
-                              () {
-                                cubit.registrarVehiculo(
-                                  marca: _marcaCtrl.text,
-                                  modelo: _modeloCtrl.text,
-                                  yearStr: _yearCtrl.text,
-                                  color: _colorCtrl.text,
-                                  matricula: _matriculaCtrl.text,
-                                );
-                              },
-                            );
-                          } else {
-                            // MODO EDICIÓN
-                            return Row(
-                              children: [
-                                Expanded(
-                                  child: customButton(
-                                    context,
-                                    "Actualizar",
-                                    Colors.blueAccent,
-                                    Colors.white,
-                                    () {
-                                      cubit.editarVehiculo(
-                                        id: _selectedCar!.id!,
-                                        marca: _marcaCtrl.text,
-                                        modelo: _modeloCtrl.text,
-                                        yearStr: _yearCtrl.text,
-                                        color: _colorCtrl.text,
-                                        matricula: _matriculaCtrl.text,
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: customButton(
-                                    context,
-                                    "Eliminar",
-                                    Colors.redAccent,
-                                    Colors.white,
-                                    () => _confirmarEliminacion(context, cubit),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
+                          return customButton(
+                            context,
+                            "Guardar Unidad",
+                            Colors.white,
+                            Colors.black,
+                            () {
+                              cubit.registrarVehiculo(
+                                marca: _marcaCtrl.text,
+                                modelo: _modeloCtrl.text,
+                                yearStr: _yearCtrl.text,
+                                fechaAdq: _fechaAdqCtrl.text,
+                                color: _colorCtrl.text,
+                                matricula: _matriculaCtrl.text,
+                              );
+                            },
+                          );
                         },
                       ),
 
@@ -236,15 +178,13 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: state.cars.length,
                               itemBuilder: (context, index) {
-                                final car = state.cars[index];
-                                final isSelected = _selectedCar?.id == car.id;
+                                final car = state.cars[index];                                
                                 
                                 return Card(
-                                  color: isSelected ? Colors.greenAccent.withOpacity(0.2) : Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withOpacity(0.1),
                                   margin: const EdgeInsets.only(bottom: 10),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    side: isSelected ? const BorderSide(color: Colors.greenAccent) : BorderSide.none,
                                   ),
                                   child: ListTile(
                                     title: Text(
@@ -255,8 +195,6 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
                                       "Matrícula: ${car.matricula} - Color: ${car.color}",
                                       style: const TextStyle(color: Colors.white70),
                                     ),
-                                    trailing: const Icon(Icons.edit, color: Colors.white54),
-                                    onTap: () => _selectCar(car),
                                   ),
                                 );
                               },
@@ -274,32 +212,6 @@ class _RegistroVehiculosAdminState extends State<RegistroVehiculosAdmin> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  // 🔹 Alerta de confirmación para eliminar
-  void _confirmarEliminacion(BuildContext context, RegistroVehiculoCubit cubit) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text("Eliminar Unidad"),
-        content: Text("¿Estás seguro de que deseas eliminar la unidad ${_selectedCar?.marca} ${_selectedCar?.model}? Esta acción no se puede deshacer."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              if (_selectedCar?.id != null) {
-                cubit.eliminarVehiculo(_selectedCar!.id!);
-              }
-            },
-            child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
-          ),
-        ],
       ),
     );
   }
