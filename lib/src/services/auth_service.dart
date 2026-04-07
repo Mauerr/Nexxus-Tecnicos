@@ -215,6 +215,26 @@ class AuthService {
   }
 
   /// ----------------------------
+  /// OBTENER TODOS LOS DOCUMENTOS DE VEHÍCULOS
+  /// ----------------------------
+  Future<List<dynamic>> getAllCarDocuments() async {
+    try {
+      final url = Uri.parse("$baseUrl/cars-docs/all");
+      final headers = await authHeaders();
+      
+      final res = await http.get(url, headers: headers);
+      
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body);
+      }
+      return [];
+    } catch (e) {
+      print("❌ GET ALL CAR DOCS ERROR: $e");
+      return [];
+    }
+  }
+
+  /// ----------------------------
   /// SUBIR IMAGEN EVIDENCIA (POST)
   /// ----------------------------
   Future<bool> uploadEvidencePhoto({

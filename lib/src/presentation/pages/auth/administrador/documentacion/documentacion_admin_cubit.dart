@@ -13,7 +13,8 @@ class DocumentacionAdminCubit extends Cubit<DocumentacionAdminState> {
     emit(DocumentacionAdminLoading());
     try {
       final cars = await authService.getAllCars();
-      emit(DocumentacionAdminLoaded(cars: cars));
+      final docs = await authService.getAllCarDocuments();
+      emit(DocumentacionAdminLoaded(cars: cars, allDocuments: docs, carDocuments: []));
     } catch (e) {
       emit(DocumentacionAdminError("Error al cargar la lista de vehículos: $e"));
     }
@@ -21,7 +22,9 @@ class DocumentacionAdminCubit extends Cubit<DocumentacionAdminState> {
 
   void selectCar(CarModel car) {
     if (state is DocumentacionAdminLoaded) {
-      emit((state as DocumentacionAdminLoaded).copyWith(selectedCar: car));
+      final currentState = state as DocumentacionAdminLoaded;
+      final filteredDocs = currentState.allDocuments.where((doc) => doc['id_cars'] == car.id).toList();
+      emit(currentState.copyWith(selectedCar: car, carDocuments: filteredDocs));
     }
   }
 
@@ -71,8 +74,16 @@ class DocumentacionAdminCubit extends Cubit<DocumentacionAdminState> {
 
         if (success) {
           emit(DocumentacionAdminSuccess("Documento guardado correctamente."));
+          
+          // Recargar todos los documentos para actualizar la lista
+          final newDocs = await authService.getAllCarDocuments();
+          final filteredDocs = newDocs.where((doc) => doc['id_cars'] == currentState.selectedCar!.id).toList();
+
           // Limpiar archivo y tipo para permitir subir otro
-          emit(currentState.copyWith(isUploading: false, selectedFile: null, selectedDocType: null));
+          emit(currentState.copyWith(
+            isUploading: false, selectedFile: null, selectedDocType: null,
+            allDocuments: newDocs, carDocuments: filteredDocs,
+          ));
         } else {
           throw Exception("El servidor devolvió un error.");
         }

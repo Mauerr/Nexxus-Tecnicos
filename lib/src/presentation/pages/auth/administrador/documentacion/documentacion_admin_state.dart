@@ -13,6 +13,8 @@ class DocumentacionAdminLoaded extends DocumentacionAdminState {
   final String? selectedDocType;
   final PlatformFile? selectedFile;
   final bool isUploading;
+  final List<dynamic> allDocuments;
+  final List<dynamic> carDocuments;
 
   DocumentacionAdminLoaded({
     required this.cars,
@@ -20,6 +22,8 @@ class DocumentacionAdminLoaded extends DocumentacionAdminState {
     this.selectedDocType,
     this.selectedFile,
     this.isUploading = false,
+    this.allDocuments = const [],
+    this.carDocuments = const [],
   });
 
   DocumentacionAdminLoaded copyWith({
@@ -28,6 +32,8 @@ class DocumentacionAdminLoaded extends DocumentacionAdminState {
     String? selectedDocType,
     PlatformFile? selectedFile,
     bool? isUploading,
+    List<dynamic>? allDocuments,
+    List<dynamic>? carDocuments,
   }) {
     return DocumentacionAdminLoaded(
       cars: cars ?? this.cars,
@@ -35,6 +41,8 @@ class DocumentacionAdminLoaded extends DocumentacionAdminState {
       selectedDocType: selectedDocType ?? this.selectedDocType,
       selectedFile: selectedFile ?? this.selectedFile,
       isUploading: isUploading ?? this.isUploading,
+      allDocuments: allDocuments ?? this.allDocuments,
+      carDocuments: carDocuments ?? this.carDocuments,
     );
   }
 }

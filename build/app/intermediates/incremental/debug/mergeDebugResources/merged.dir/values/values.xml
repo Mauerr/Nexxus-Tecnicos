@@ -25,6 +25,8 @@
         
         <enum name="adjacent" value="2"/>
     </attr>
+    <attr format="string" name="fontProviderSystemFontFamily"/>
+    <attr format="string" name="fontVariationSettings"/>
     <attr format="dimension" name="height"/>
     <attr format="boolean" name="isLightTheme"/>
     <attr format="reference" name="nestedScrollViewStyle"/>
@@ -80,6 +82,10 @@
     <color name="bright_foreground_inverse_material_light">@color/bright_foreground_material_dark</color>
     <color name="bright_foreground_material_dark">@android:color/white</color>
     <color name="bright_foreground_material_light">@android:color/black</color>
+    <color name="browser_actions_bg_grey">#F5F5F5</color>
+    <color name="browser_actions_divider_color">#1E000000</color>
+    <color name="browser_actions_text_color">#DE000000</color>
+    <color name="browser_actions_title_color">#646464</color>
     <color name="button_material_dark">#ff5a595b</color>
     <color name="button_material_light">#ffd6d7d7</color>
     <color name="call_notification_answer_color">#1d873b</color>
@@ -207,6 +213,8 @@
     <dimen name="abc_text_size_subtitle_material_toolbar">16dp</dimen>
     <dimen name="abc_text_size_title_material">20sp</dimen>
     <dimen name="abc_text_size_title_material_toolbar">20dp</dimen>
+    <dimen name="browser_actions_context_menu_max_width">500dp</dimen>
+    <dimen name="browser_actions_context_menu_min_padding">20dp</dimen>
     <dimen name="compat_button_inset_horizontal_material">4dp</dimen>
     <dimen name="compat_button_inset_vertical_material">6dp</dimen>
     <dimen name="compat_button_padding_horizontal_material">8dp</dimen>
@@ -321,11 +329,13 @@
     <item name="tag_accessibility_clickable_spans" type="id"/>
     <item name="tag_accessibility_heading" type="id"/>
     <item name="tag_accessibility_pane_title" type="id"/>
+    <item name="tag_compat_insets_dispatch" type="id"/>
     <item name="tag_on_apply_window_listener" type="id"/>
     <item name="tag_on_receive_content_listener" type="id"/>
     <item name="tag_on_receive_content_mime_types" type="id"/>
     <item name="tag_screen_reader_focusable" type="id"/>
     <item name="tag_state_description" type="id"/>
+    <item name="tag_system_bar_state_monitor" type="id"/>
     <item name="tag_transition_group" type="id"/>
     <item name="tag_unhandled_key_event_manager" type="id"/>
     <item name="tag_unhandled_key_listeners" type="id"/>
@@ -388,7 +398,11 @@
     <string name="call_notification_ongoing_text">Ongoing call</string>
     <string name="call_notification_screening_text">Screening an incoming call</string>
     <string name="copy">Copy</string>
+    <string name="copy_toast_msg">Link copied to clipboard</string>
     <string name="expand_button_title">Advanced</string>
+    <string name="fallback_menu_item_copy_link">Copy link</string>
+    <string name="fallback_menu_item_open_in_browser">Open in browser</string>
+    <string name="fallback_menu_item_share_link">Share link</string>
     <string name="not_set">Not set</string>
     <string name="preference_copied">
         \"<ns1:g example="Version 1.1" id="summary">%1$s</ns1:g>\" copied to clipboard.
@@ -2946,7 +2960,7 @@
             <enum name="forever" value="-1"/>
         </attr>
         
-        <attr format="string" name="fontProviderSystemFontFamily"/>
+        <attr name="fontProviderSystemFontFamily"/>
     </declare-styleable>
     <declare-styleable name="FontFamilyFont">
         
@@ -2959,7 +2973,7 @@
         
         <attr format="integer" name="fontWeight"/>
         
-        <attr format="string" name="fontVariationSettings"/>
+        <attr name="fontVariationSettings"/>
         
         <attr format="integer" name="ttcIndex"/>
         
@@ -2968,6 +2982,14 @@
         <attr name="android:fontWeight"/>
         <attr name="android:fontVariationSettings"/>
         <attr name="android:ttcIndex"/>
+    </declare-styleable>
+    <declare-styleable name="FontFamilyProviderFallback">
+        
+        <attr name="fontProviderQuery"/>
+        
+        <attr name="fontProviderSystemFontFamily"/>
+        
+        <attr name="fontVariationSettings"/>
     </declare-styleable>
     <declare-styleable name="Fragment">
         <attr name="android:name"/>

@@ -5,6 +5,7 @@ import 'package:nexxus/src/services/auth_service.dart';
 import '../barrilExportPath.dart';
 import 'documentacion_admin_cubit.dart';
 import 'documentacion_admin_state.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class ArchivosVehiculoAdmin extends StatefulWidget {
@@ -15,6 +16,26 @@ class ArchivosVehiculoAdmin extends StatefulWidget {
 }
 
 class _ArchivosVehiculoAdminState extends State<ArchivosVehiculoAdmin> {
+  
+  /// 🔹 Función para abrir el PDF externamente
+  Future<void> _abrirDocumento(String path) async {
+    final baseUrl = AuthService().baseUrl;
+    // Unimos la IP del backend con la ruta del archivo (ej. http://10.15.14.20:3000/uploads/...)
+    final fullUrl = "$baseUrl/$path";
+    final uri = Uri.parse(fullUrl);
+    
+    try {
+      // LaunchMode.externalApplication obliga a usar la app por defecto del sistema (visor PDF o navegador)
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("No se pudo abrir el documento.")));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al intentar abrir el archivo: $e")));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -162,6 +183,43 @@ class _ArchivosVehiculoAdminState extends State<ArchivosVehiculoAdmin> {
                                         : const Text("Guardar Documento", style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
                                   ),
                                 ),
+
+                                /// 🔹 HISTORIAL DE DOCUMENTOS DE LA UNIDAD
+                                if (state.selectedCar != null) ...[
+                                  const SizedBox(height: 40),
+                                  const Divider(color: Colors.white54),
+                                  const SizedBox(height: 20),
+                                  const Text("Documentos Registrados", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 10),
+                                  
+                                  if (state.carDocuments.isEmpty)
+                                    const Text("No hay documentos guardados para esta unidad.", style: TextStyle(color: Colors.white70)),
+                                    
+                                  if (state.carDocuments.isNotEmpty)
+                                    ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: state.carDocuments.length,
+                                      itemBuilder: (context, index) {
+                                        final doc = state.carDocuments[index];
+                                        final type = doc['type_doc']?.toString().toUpperCase() ?? 'DOCUMENTO';
+                                        final hasFile = doc['archivo'] != null && doc['archivo'].toString().trim().isNotEmpty;
+                                        
+                                        return Card(
+                                          color: Colors.white.withOpacity(0.1),
+                                          margin: const EdgeInsets.only(bottom: 10),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          child: ListTile(
+                                            leading: Icon(hasFile ? Icons.picture_as_pdf : Icons.insert_drive_file_outlined, color: hasFile ? Colors.greenAccent : Colors.white54, size: 30),
+                                            title: Text(type, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                            subtitle: Text(hasFile ? "Archivo guardado" : "Sin archivo", style: const TextStyle(color: Colors.white70)),
+                                            trailing: hasFile ? const Icon(Icons.remove_red_eye, color: Colors.blueAccent) : const Icon(Icons.warning_amber_rounded, color: Colors.orangeAccent),
+                                            onTap: hasFile ? () => _abrirDocumento(doc['archivo'].toString()) : null,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                ],
                               ],
                             );
                           }
