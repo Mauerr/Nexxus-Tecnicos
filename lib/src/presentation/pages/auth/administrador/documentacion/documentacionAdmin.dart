@@ -20,8 +20,11 @@ class _ArchivosVehiculoAdminState extends State<ArchivosVehiculoAdmin> {
   /// 🔹 Función para abrir el PDF externamente
   Future<void> _abrirDocumento(String path) async {
     final baseUrl = AuthService().baseUrl;
-    // Unimos la IP del backend con la ruta del archivo (ej. http://10.15.14.20:3000/uploads/...)
-    final fullUrl = "$baseUrl/$path";
+    
+    // Limpiamos la ruta por si viene con una barra inicial
+    final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    // Unimos la IP del backend agregando 'media/' antes de la ruta del archivo
+    final fullUrl = "$baseUrl/media/$cleanPath";
     final uri = Uri.parse(fullUrl);
     
     try {
